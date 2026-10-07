@@ -1,0 +1,59 @@
+# EterResource messages, MiniMessage format: https://docs.advntr.dev/minimessage/format
+# Palette tags (EterLib/config.yml > language.colors): <primary> <accent> <info> <error> <success>
+#   <info> = regular light gray text, <accent> = important words in orange.
+# A missing key falls back to the text bundled in the plugin: keep only the lines you change.
+# The message prefix ("Core") is shared by all plugins: EterLib/config.yml > language.prefix.
+# Shared texts ("Cancel", "Unknown player", "Players only"...) live in EterLib/lang/, for every plugin.
+
+menu:
+  title: "<primary>Resource world"
+  head:
+    name: "<accent><player>"
+    time: "<info>Time left: <accent><time></accent> <dark_gray>(max <max>)"
+    keys: "<info>Keys: <accent><keys>"
+  buy:
+    name: "<accent>Buy <time>"
+    price: "<info>Price: <accent><price>"
+    disabled: "<error>Buying disabled"
+  key:
+    name: "<accent>Use a key <dark_gray>(+<time>)"
+    count: "<info>Your keys: <accent><keys>"
+  go:
+    name: "<accent>Go"
+    worlds: "<info>Open worlds: <accent><count>"
+    click: "<success>● <accent>click</accent> <info>to go"
+    no-time: "<error>● <info>You need time"
+    here: "<success>● <info>You are here"
+
+buy:
+  title: "<primary>Buy time"
+  body: "<info>Buy <accent><time></accent> of resource world for <accent><price></accent>?<newline><info>Maximum stored: <accent><max></accent>."
+  confirm: "Buy"
+
+access:
+  bought: "<info>You bought <accent><time></accent> of resource world for <accent><price></accent>."
+  key-used: "<info>Key used: <accent>+<time></accent> of resource world."
+  full: "<error>You can't store more than <accent><max></accent> of resource world."
+  not-enough: "<error>You need <accent><price></accent> to buy a slot."
+  no-key: "<error>You have no key."
+  buy-disabled: "<error>Buying time is disabled: you need a key."
+  no-time: "<error>You need time: buy a slot or use a key."
+  no-world: "<error>No resource world is open right now, try again in a few minutes."
+  connecting: "<info>Connecting to <accent><server></accent>..."
+  already-there: "<info>You are already on a resource world."
+
+world:
+  welcome: "<info>Resource world: you have <accent><time></accent> left. No PvP, and you keep your inventory on death."
+  reminder: "<info>Only <accent><time></accent> left on the resource world."
+  countdown: "<info>Resource world: <accent><time>"
+  time-over: "<info>Your resource world time is over."
+  no-time: "<error>You need resource world time (<accent>/ressource</accent> in the lobby)."
+  not-ready: "<error>This resource world is still being prepared, try again in a few minutes."
+
+admin:
+  usage: '<error>Usage: <accent>/eterresource givekey|givetime \<player> \<amount></accent> or <accent>/eterresource info \<player>'
+  givekey: "<accent><amount></accent> <info>key(s) given to <accent><player></accent> <dark_gray>(keys: <keys>, time: <time>)"
+  givetime: "<accent><amount> min</accent> <info>given to <accent><player></accent> <dark_gray>(keys: <keys>, time: <time>)"
+  info: "<accent><player></accent><info>: keys <accent><keys></accent>, time <accent><time>"
+  received-key: "<info>You received <accent><amount></accent> resource world key(s) (<accent>/ressource</accent>)."
+  received-time: "<info>You received <accent><amount> min</accent> of resource world (<accent>/ressource</accent>)."

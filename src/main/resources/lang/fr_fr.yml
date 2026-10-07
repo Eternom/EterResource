@@ -1,0 +1,59 @@
+# Messages d'EterResource, format MiniMessage : https://docs.advntr.dev/minimessage/format
+# Balises de la palette (EterLib/config.yml > language.colors) : <primary> <accent> <info> <error> <success>
+#   <info> = texte courant gris clair, <accent> = mots importants en orange.
+# Une clé absente reprend le texte intégré au plugin : tu peux ne garder que les lignes que tu modifies.
+# Le préfixe des messages (« Core ») est commun à tous les plugins : EterLib/config.yml > language.prefix.
+# Textes communs (« Annuler », « Joueur inconnu », « Commande réservée aux joueurs »...) : dans EterLib/lang/, pour tous les plugins.
+
+menu:
+  title: "<primary>Monde ressource"
+  head:
+    name: "<accent><player>"
+    time: "<info>Temps restant : <accent><time></accent> <dark_gray>(max <max>)"
+    keys: "<info>Clés : <accent><keys>"
+  buy:
+    name: "<accent>Acheter <time>"
+    price: "<info>Prix : <accent><price>"
+    disabled: "<error>Achat désactivé"
+  key:
+    name: "<accent>Utiliser une clé <dark_gray>(+<time>)"
+    count: "<info>Tes clés : <accent><keys>"
+  go:
+    name: "<accent>Partir"
+    worlds: "<info>Mondes ouverts : <accent><count>"
+    click: "<success>● <accent>clic</accent> <info>pour y aller"
+    no-time: "<error>● <info>Il te faut du temps"
+    here: "<success>● <info>Tu y es"
+
+buy:
+  title: "<primary>Acheter du temps"
+  body: "<info>Acheter <accent><time></accent> de monde ressource pour <accent><price></accent> ?<newline><info>Maximum en réserve : <accent><max></accent>."
+  confirm: "Acheter"
+
+access:
+  bought: "<info>Tu as acheté <accent><time></accent> de monde ressource pour <accent><price></accent>."
+  key-used: "<info>Clé utilisée : <accent>+<time></accent> de monde ressource."
+  full: "<error>Tu ne peux pas garder plus de <accent><max></accent> de monde ressource."
+  not-enough: "<error>Il te faut <accent><price></accent> pour acheter un créneau."
+  no-key: "<error>Tu n'as pas de clé."
+  buy-disabled: "<error>L'achat de temps est désactivé : il faut une clé."
+  no-time: "<error>Il te faut du temps : achète un créneau ou utilise une clé."
+  no-world: "<error>Aucun monde ressource n'est ouvert pour le moment, réessaie dans quelques minutes."
+  connecting: "<info>Connexion à <accent><server></accent>..."
+  already-there: "<info>Tu es déjà sur un monde ressource."
+
+world:
+  welcome: "<info>Monde ressource : il te reste <accent><time></accent>. Pas de PvP, et tu gardes ton inventaire en mourant."
+  reminder: "<info>Plus que <accent><time></accent> sur le monde ressource."
+  countdown: "<info>Monde ressource : <accent><time>"
+  time-over: "<info>Ton temps de monde ressource est écoulé."
+  no-time: "<error>Il te faut du temps de monde ressource (<accent>/ressource</accent> au lobby)."
+  not-ready: "<error>Ce monde ressource se prépare encore, réessaie dans quelques minutes."
+
+admin:
+  usage: '<error>Utilisation : <accent>/eterresource givekey|givetime \<joueur> \<nombre></accent> ou <accent>/eterresource info \<joueur>'
+  givekey: "<accent><amount></accent> <info>clé(s) donnée(s) à <accent><player></accent> <dark_gray>(clés : <keys>, temps : <time>)"
+  givetime: "<accent><amount> min</accent> <info>données à <accent><player></accent> <dark_gray>(clés : <keys>, temps : <time>)"
+  info: "<accent><player></accent> <info>: clés <accent><keys></accent>, temps <accent><time>"
+  received-key: "<info>Tu as reçu <accent><amount></accent> clé(s) de monde ressource (<accent>/ressource</accent>)."
+  received-time: "<info>Tu as reçu <accent><amount> min</accent> de monde ressource (<accent>/ressource</accent>)."

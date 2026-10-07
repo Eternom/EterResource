@@ -1,0 +1,34 @@
+name: EterResource
+version: '${version}'
+
+main: fr.eternom.eterResource.Main
+api-version: '26.2'
+load: POSTWORLD
+authors: [ NadTum ]
+description: 'Mondes ressources : accès (créneaux, clés), temps, règles et bonus de métier.'
+depend: [EterLib]
+softdepend: [Vault]
+
+commands:
+  ressource:
+    description: Menu des mondes ressources (temps, clés, départ).
+    usage: /ressource
+    aliases: [resource, rw]
+    permission: eterresource.use
+  eterresource:
+    description: Administration des mondes ressources (staff, console).
+    usage: /eterresource <givekey|givetime|info> <joueur> [nombre]
+    permission: eterresource.admin
+
+permissions:
+  eterresource.use:
+    default: true
+  eterresource.bypass.time:
+    description: Entrer sur un monde ressource sans temps, sans en consommer.
+    default: op
+  eterresource.admin:
+    description: Toutes les permissions d'EterResource (dont /eterresource).
+    default: op
+    children:
+      eterresource.use: true
+      eterresource.bypass.time: true

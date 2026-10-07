@@ -1,0 +1,59 @@
+# ============================================================
+#  EterResource : les mondes ressources
+# ============================================================
+#
+#  À installer sur les lobbys et les survies (menu /ressource : acheter du temps, utiliser une clé,
+#  partir) ET dans les plugins des mondes ressources (téléchargé par EterVelocityResource).
+#  Un serveur est un monde ressource si son server-name (EterLib) commence par world-server-prefix :
+#  il prépare alors son monde, compte le temps des joueurs et donne les bonus de métier.
+#  Les textes sont dans lang/. Toute modification nécessite un redémarrage.
+
+# Comme name-prefix d'EterVelocityResource (servers.name-prefix).
+world-server-prefix: ressource
+
+access:
+  # Temps donné par un créneau acheté ou par une clé, en minutes.
+  slot-minutes: 30
+  # Prix d'un créneau (0 = achat désactivé, seulement les clés).
+  slot-price: 600
+  # Temps maximum en réserve, en minutes (au-delà, achat et clé sont refusés).
+  max-minutes: 120
+
+# Mondes ressources seulement. Dimensions : normal (surface), nether, the_end.
+world:
+  # Taille de la bordure (côté, en blocs), centrée sur le spawn ; 0 = pas de bordure.
+  # Surface : 6000 garde les premiers fiefs de l'End (entre 1280 et 2816 blocs du centre).
+  border:
+    normal: 6000
+    nether: 1000
+    the_end: 4000
+  # Prégénération autour du spawn avant d'accepter les joueurs (rayon en blocs, 0 = aucune).
+  pregenerate:
+    normal: 512
+    nether: 128
+    the_end: 0
+
+# Bonus de métier sur les mondes ressources (métier d'EterMarket ; sans métier : aucun bonus).
+#   effects          effet:niveau (noms Minecraft : haste, strength, night_vision, luck, dolphins_grace...)
+#   tree-felling     casser une bûche à la hache abat l'arbre (pas en s'accroupissant)
+#   crop-multiplier  cultures mûres : récolte multipliée
+#   mob-drop-bonus   butin des créatures tuées : 0.5 = +50 %
+jobs:
+  mineur:
+    effects: ['haste:1', 'night_vision:1']
+  bucheron:
+    effects: ['haste:1']
+    tree-felling: true
+  fermier:
+    crop-multiplier: 2
+  chasseur:
+    effects: ['strength:1']
+    mob-drop-bonus: 0.5
+  pecheur:
+    effects: ['luck:1', 'dolphins_grace:1']
+
+# Menu /ressource : bouton en bas. Avec une commande (sans le /), il la lance pour le joueur et relie
+# les menus entre eux ; vide, il ferme le menu.
+menus:
+  access:
+    back-command: ""
