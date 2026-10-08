@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Les bonus de métier en jeu : effets, abattage d'arbre, récoltes doublées, butin des monstres. */
+/** Les bonus de métier en jeu : effets, abattage d'arbre, récoltes doublées, minerais et butin des monstres en plus. */
 public class BonusListener implements Listener {
 
     /** Bûches abattues d'un coup au plus. */
@@ -109,6 +109,33 @@ public class BonusListener implements Listener {
         }
     }
 
+    /** Minerais qui profitent du bonus du mineur (pas les débris antiques : la netherite reste rare). */
+    private static final List<Tag<Material>> ORES = List.of(Tag.COAL_ORES, Tag.IRON_ORES, Tag.COPPER_ORES, Tag.GOLD_ORES,
+            Tag.REDSTONE_ORES, Tag.LAPIS_ORES, Tag.DIAMOND_ORES, Tag.EMERALD_ORES);
+
+    /**
+     * Mineur : les minerais qu'il casse donnent ore-drop-bonus de plus (0.5 = +50 %, arrondi au hasard), en plus de
+     * Fortune. Un minerai récupéré entier (Toucher de soie) ne compte pas.
+     */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onOreDrop(BlockDropItemEvent event) {
+        Material ore = event.getBlockState().getType();
+        if (ore != Material.NETHER_QUARTZ_ORE && ORES.stream().noneMatch(tag -> tag.isTagged(ore))) {
+            return;
+        }
+        double bonus = bonuses.of(event.getPlayer()).map(JobBonuses.Bonus::oreDropBonus).orElse(0.0);
+        if (bonus <= 0) {
+            return;
+        }
+        for (Item item : event.getItems()) {
+            ItemStack stack = item.getItemStack();
+            if (stack.getType() != ore) {
+                stack.setAmount(withBonus(stack, bonus));
+                item.setItemStack(stack);
+            }
+        }
+    }
+
     /** Chasseur : le butin des monstres et animaux qu'il tue augmente de mob-drop-bonus (0.5 = +50 %, arrondi au hasard). */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onMobDeath(EntityDeathEvent event) {
@@ -122,11 +149,16 @@ public class BonusListener implements Listener {
             return;
         }
         for (ItemStack drop : event.getDrops()) {
-            double extra = drop.getAmount() * bonus;
-            int whole = (int) extra;
-            int amount = drop.getAmount() + whole + (ThreadLocalRandom.current().nextDouble() < extra - whole ? 1 : 0);
-            drop.setAmount(Math.min(amount, drop.getMaxStackSize()));
+            drop.setAmount(withBonus(drop, bonus));
         }
+    }
+
+    /** Quantité de stack augmentée de bonus (0.5 = +50 %), la partie décimale tirée au hasard, sans dépasser une pile. */
+    private static int withBonus(ItemStack stack, double bonus) {
+        double extra = stack.getAmount() * bonus;
+        int whole = (int) extra;
+        int amount = stack.getAmount() + whole + (ThreadLocalRandom.current().nextDouble() < extra - whole ? 1 : 0);
+        return Math.min(amount, stack.getMaxStackSize());
     }
 
     /** Bûches du même bois reliées à origin (diagonales comprises), sans origin. */

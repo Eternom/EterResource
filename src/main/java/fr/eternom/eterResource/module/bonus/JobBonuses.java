@@ -27,8 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class JobBonuses {
 
-    /** Bonus d'un métier. cropMultiplier : 1 = normal ; mobDropBonus : 0.5 = +50 %. */
-    public record Bonus(List<PotionEffect> effects, boolean treeFelling, int cropMultiplier, double mobDropBonus) {
+    /** Bonus d'un métier. cropMultiplier : 1 = normal ; mobDropBonus, oreDropBonus : 0.5 = +50 %. */
+    public record Bonus(List<PotionEffect> effects, boolean treeFelling, int cropMultiplier, double mobDropBonus,
+                        double oreDropBonus) {
     }
 
     private static final long APPLY_TICKS = 5 * 20;
@@ -125,7 +126,8 @@ public class JobBonuses {
                 effects.add(new PotionEffect(type, EFFECT_TICKS, level - 1, true, false, true));
             }
             bonuses.put(job, new Bonus(List.copyOf(effects), jobs.getBoolean(job + ".tree-felling", false),
-                    Math.max(1, jobs.getInt(job + ".crop-multiplier", 1)), Math.max(0, jobs.getDouble(job + ".mob-drop-bonus", 0))));
+                    Math.max(1, jobs.getInt(job + ".crop-multiplier", 1)), Math.max(0, jobs.getDouble(job + ".mob-drop-bonus", 0)),
+                    Math.max(0, jobs.getDouble(job + ".ore-drop-bonus", 0))));
         }
         return bonuses;
     }

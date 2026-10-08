@@ -38,9 +38,11 @@ world:
 #   tree-felling     casser une bûche à la hache abat l'arbre (pas en s'accroupissant)
 #   crop-multiplier  cultures mûres : récolte multipliée
 #   mob-drop-bonus   butin des créatures tuées : 0.5 = +50 %
+#   ore-drop-bonus   minerais cassés (sauf Toucher de soie et débris antiques) : 0.5 = +50 %
 jobs:
   mineur:
     effects: ['haste:1']
+    ore-drop-bonus: 0.5
   bucheron:
     effects: ['haste:1']
     tree-felling: true

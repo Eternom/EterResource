@@ -42,7 +42,8 @@ Un seul jar, deux rôles selon le serveur :
     suite). Rappels à 15, 5 et 1 min ; compte à rebours dans l'action bar les 5 dernières minutes.
     `eterresource.bypass.time` : le staff entre sans temps et n'en consomme pas.
 - **`bonus`** : métier relu à l'arrivée puis chaque minute ; `jobs.<métier>` dans config.yml (effets, abattage
-  d'arbre, récoltes multipliées, butin des créatures). Les effets durent 15 s, sans particules, renouvelés toutes les
+  d'arbre, récoltes multipliées, minerais en plus pour le mineur, butin des créatures). Les effets durent 15 s,
+  sans particules, renouvelés toutes les
   5 s, et sont retirés au départ en `LOWEST`, AVANT qu'EterSync (`MONITOR`) n'enregistre les effets du joueur : ils ne le
   suivent jamais sur un autre serveur. Seuls nos effets sont retirés (ambiants, même niveau, 15 s au plus) : une potion
   bue reste. L'abattage (64 bûches au plus, hache, pas accroupi) use la hache d'un point par bûche ; chaque bûche passe
