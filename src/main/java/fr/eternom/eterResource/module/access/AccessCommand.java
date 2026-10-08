@@ -114,7 +114,7 @@ public class AccessCommand implements TabExecutor {
             return ACTIONS.stream().filter(action -> action.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
         }
         if (args.length == 2) {
-            return lib.getOnlineNames().complete(args[1], true);
+            return lib.getOnlineNames().complete(args[1]);
         }
         return List.of();
     }

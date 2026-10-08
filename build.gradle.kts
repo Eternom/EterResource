@@ -16,7 +16,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.129-stable")
 
     // Socle commun : base, langues, menus, serveurs du réseau (plugin EterLib installé sur le serveur)
-    compileOnly("com.github.Eternom:EterLib:1.7.0")
+    compileOnly("com.github.Eternom:EterLib:1.8.0")
     // Achat de temps : Vault (fourni par EterEconomy)
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude(group = "org.bukkit")

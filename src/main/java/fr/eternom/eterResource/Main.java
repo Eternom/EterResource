@@ -23,7 +23,7 @@ import java.util.Locale;
 public final class Main extends JavaPlugin {
 
     /** Version minimale d'EterLib : joueurs par serveur et connect depuis 1.7.0. */
-    private static final String REQUIRED_ETERLIB = "1.7.0";
+    private static final String REQUIRED_ETERLIB = "1.8.0";
 
     /** Préfixe des tables d'EterResource : eterresource_access, eterresource_worlds (et eterresource_servers, de l'orchestrateur). */
     private static final String TABLE_PREFIX = "eterresource_";

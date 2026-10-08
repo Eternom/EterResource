@@ -12,7 +12,7 @@ Un seul jar, deux rôles selon le serveur :
 
 ## Prérequis
 
-- **EterLib 1.7.0+** (`depend`) : base, langues et textes communs, menus (cadre, bouton Retour, Dialogs), joueurs par
+- **EterLib 1.8.0+** (`depend`) : base, langues et textes communs, menus (cadre, bouton Retour, Dialogs), joueurs par
   serveur (`countByServer`), annuaire des joueurs (`find`), envoi vers un serveur (`getTeleports().connect`).
 - **Vault** + **EterEconomy** (`softdepend`) pour l'achat ; sans économie, seules les clés marchent.
 - **EterMarket** sur les mondes ressources, pour les bonus de métier (table `etermarket_job_members`, lue seulement)
