@@ -1,5 +1,6 @@
 package fr.eternom.eterResource.module.bonus;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -35,6 +36,8 @@ public class BonusListener implements Listener {
     private static final int MAX_LOGS = 64;
 
     private final JobBonuses bonuses;
+    /** Pendant l'abattage : nos propres BlockBreakEvent ne relancent pas un abattage. */
+    private boolean felling;
 
     public BonusListener(JobBonuses bonuses) {
         this.bonuses = bonuses;
@@ -51,9 +54,15 @@ public class BonusListener implements Listener {
         bonuses.quit(event.getPlayer());
     }
 
-    /** Bûcheron : une bûche cassée à la hache (sans s'accroupir) abat les bûches du même bois qui la touchent. */
+    /**
+     * Bûcheron : une bûche cassée à la hache (sans s'accroupir) abat les bûches du même bois qui la touchent. Chaque
+     * bûche passe par son propre BlockBreakEvent : les protections s'appliquent, et les quêtes d'EterMarket la comptent.
+     */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBreak(BlockBreakEvent event) {
+        if (felling) {
+            return; // une bûche abattue par nous-mêmes
+        }
         Player player = event.getPlayer();
         Block origin = event.getBlock();
         if (!Tag.LOGS.isTagged(origin.getType()) || player.isSneaking() || player.getGameMode() != GameMode.SURVIVAL
@@ -65,6 +74,16 @@ public class BonusListener implements Listener {
             ItemStack axe = player.getInventory().getItemInMainHand();
             if (!Tag.ITEMS_AXES.isTagged(axe.getType())) {
                 return; // hache cassée
+            }
+            BlockBreakEvent each = new BlockBreakEvent(log, player);
+            felling = true;
+            try {
+                Bukkit.getPluginManager().callEvent(each);
+            } finally {
+                felling = false;
+            }
+            if (each.isCancelled()) {
+                continue;
             }
             log.breakNaturally(axe, true);
             player.damageItemStack(EquipmentSlot.HAND, 1);
