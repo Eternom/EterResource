@@ -40,7 +40,7 @@ world:
 #   mob-drop-bonus   butin des créatures tuées : 0.5 = +50 %
 jobs:
   mineur:
-    effects: ['haste:1', 'night_vision:1']
+    effects: ['haste:1']
   bucheron:
     effects: ['haste:1']
     tree-felling: true
