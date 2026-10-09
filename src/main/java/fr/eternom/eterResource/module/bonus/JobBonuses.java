@@ -1,6 +1,5 @@
 package fr.eternom.eterResource.module.bonus;
 
-import fr.eternom.eterLib.helper.sql.Database;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -20,8 +19,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Bonus de métier sur le monde ressource (config.yml > jobs). Le métier vient d'EterMarket (table
- * etermarket_job_members, relue à l'arrivée puis chaque minute) ; sans métier ou sans EterMarket : aucun bonus.
+ * Bonus de métier sur le monde ressource (config.yml > jobs). Le métier vient d'EterMarket
+ * (MarketApi, relu à l'arrivée puis chaque minute) ; sans métier ou sans EterMarket : aucun bonus.
  * Les effets sont courts et renouvelés toutes les 5 s, et retirés au départ AVANT qu'EterSync n'enregistre le joueur :
  * ils ne suivent jamais le joueur sur un autre serveur.
  */
@@ -38,15 +37,14 @@ public class JobBonuses {
     static final int EFFECT_TICKS = 15 * 20;
 
     private final JavaPlugin plugin;
-    private final Database market;
+
     private final Map<String, Bonus> byJob;
     /** Bonus des joueurs connectés qui ont un métier. */
     private final Map<UUID, Bonus> active = new ConcurrentHashMap<>();
     private volatile boolean warned;
 
-    public JobBonuses(JavaPlugin plugin, Database market) {
+    public JobBonuses(JavaPlugin plugin) {
         this.plugin = plugin;
-        this.market = market;
         this.byJob = read(plugin.getConfig().getConfigurationSection("jobs"));
     }
 
@@ -91,9 +89,7 @@ public class JobBonuses {
     /** Bloquant (base). */
     private void load(UUID uuid) {
         try {
-            Bonus bonus = market.getFirst("job_members", Map.of("uuid", uuid))
-                    .map(row -> byJob.get(row.getString("job")))
-                    .orElse(null);
+            Bonus bonus = MarketJobs.jobOf(uuid).map(byJob::get).orElse(null);
             if (bonus == null) {
                 active.remove(uuid);
             } else if (Bukkit.getPlayer(uuid) != null) {

@@ -12,10 +12,10 @@ Un seul jar, deux rôles selon le serveur :
 
 ## Prérequis
 
-- **EterLib 1.8.0+** (`depend`) : base, langues et textes communs, menus (cadre, bouton Retour, Dialogs), joueurs par
+- **EterLib 1.10.0+** (`depend`) : base, langues et textes communs, menus (cadre, bouton Retour, Dialogs), joueurs par
   serveur (`countByServer`), annuaire des joueurs (`find`), envoi vers un serveur (`getTeleports().connect`).
-- **Vault** + **EterEconomy** (`softdepend`) pour l'achat ; sans économie, seules les clés marchent.
-- **EterMarket** sur les mondes ressources, pour les bonus de métier (table `etermarket_job_members`, lue seulement)
+- **EterEconomy 2.2.2+** (`softdepend`, son API `EconomyApi`) pour l'achat ; sans économie, seules les clés marchent.
+- **EterMarket** sur les mondes ressources, pour les bonus de métier (son API `MarketApi`, EterMarket 1.4.0+)
   et pour que les quêtes de métier comptent aussi là-bas.
 - **EterVelocityLobby** : un joueur expulsé d'un monde ressource (temps écoulé, monde pas prêt) est renvoyé au lobby,
   avec la raison.
@@ -62,3 +62,16 @@ Un seul jar, deux rôles selon le serveur :
 - Le temps de l'action bar et des messages passe par `EterLib#formatDuration`.
 - Pas de config à garder sur un monde ressource : les valeurs du jar suffisent (le modèle n'a pas de dossier
   `plugins/EterResource`). Si on change `world-server-prefix`, changer aussi le `name-prefix` d'EterVelocityResource.
+
+## API (pour les autres plugins)
+
+`fr.eternom.eterResource.api.ResourceApi` (`ResourceApi.get()`) : personne d'autre ne lit `eterresource_access`.
+
+- `access(uuid)` : temps restant et clés (bloquant) ; `addTime(uuid, ms)`, `giveKeys(uuid, n)` (bloquant ; le joueur
+  connecté ici voit tout de suite son nouveau temps) ;
+- `isResourceServer()`, `openMenu(joueur)`.
+
+Ce qu'EterResource demande aux autres : le **métier** d'un joueur à EterMarket (`MarketApi`, bonus de métier),
+l'**argent** à EterEconomy (`EconomyApi`, source « EterResource · créneau »). Seule lecture hors de ses tables :
+`eterresource_servers`, la table de son orchestrateur (EterVelocityResource, la moitié proxy des mondes ressources),
+pour ne pas proposer un monde en cours de vidange.

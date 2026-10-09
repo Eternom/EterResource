@@ -6,7 +6,7 @@ import fr.eternom.eterLib.helper.message.Messages;
 import fr.eternom.eterLib.helper.task.Tasks;
 import fr.eternom.eterResource.module.access.AccessRepository.Access;
 import fr.eternom.eterResource.module.world.WorldDirectory;
-import net.milkbowl.vault.economy.Economy;
+import fr.eternom.eterEconomy.api.EconomyApi;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -85,7 +85,7 @@ public class AccessService {
 
     /** Achète un créneau : le temps est ajouté d'abord (refusé au-delà du maximum), puis retiré si le paiement échoue. */
     public void buy(Player player, Runnable after) {
-        Economy economy = Money.economy();
+        EconomyApi economy = EconomyApi.get().orElse(null);
         if (slotPrice <= 0) {
             messages.send(player, "access.buy-disabled");
             return;
@@ -98,7 +98,7 @@ public class AccessService {
             if (!access.addTime(player.getUniqueId(), slotMillis, maxMillis)) {
                 return "access.full";
             }
-            if (!economy.withdrawPlayer(player, slotPrice).transactionSuccess()) {
+            if (!economy.withdraw(player.getUniqueId(), slotPrice, "EterResource · créneau")) {
                 access.removeTime(player.getUniqueId(), slotMillis);
                 return "access.not-enough";
             }

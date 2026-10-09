@@ -11,6 +11,11 @@ import fr.eternom.eterResource.module.bonus.JobBonuses;
 import fr.eternom.eterResource.module.world.Sessions;
 import fr.eternom.eterResource.module.world.WorldDirectory;
 import fr.eternom.eterResource.module.world.WorldSetup;
+import fr.eternom.eterLib.helper.gui.BackButton;
+import fr.eternom.eterResource.api.ResourceApi;
+import fr.eternom.eterResource.module.access.AccessMenu;
+import fr.eternom.eterResource.module.access.ResourceApiService;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Locale;
@@ -23,12 +28,10 @@ import java.util.Locale;
 public final class Main extends JavaPlugin {
 
     /** Version minimale d'EterLib : joueurs par serveur et connect depuis 1.7.0. */
-    private static final String REQUIRED_ETERLIB = "1.8.0";
+    private static final String REQUIRED_ETERLIB = "1.10.0";
 
     /** Préfixe des tables d'EterResource : eterresource_access, eterresource_worlds (et eterresource_servers, de l'orchestrateur). */
     private static final String TABLE_PREFIX = "eterresource_";
-    /** Tables d'EterMarket, lues seulement (métier des joueurs). */
-    private static final String MARKET_PREFIX = "etermarket_";
 
     private EterLib lib;
     private Messages messages;
@@ -63,13 +66,18 @@ public final class Main extends JavaPlugin {
         if (worldServer) {
             world = new WorldSetup(this, worlds, lib.getServerName());
             sessions = new Sessions(this, lib, messages, access, world);
-            bonuses = new JobBonuses(this, lib.database(MARKET_PREFIX));
+            bonuses = new JobBonuses(this);
             service.onTimeChanged(sessions::reload);
             world.start();
             sessions.start();
             bonuses.start();
             getLogger().info("Monde ressource : " + lib.getServerName());
         }
+        // API pour les autres plugins (ResourceApi.get())
+        BackButton back = lib.backButton(getConfig().getString("menus.access.back-command", ""));
+        getServer().getServicesManager().register(ResourceApi.class, new ResourceApiService(this, service, access,
+                player -> AccessMenu.open(this, service, messages, back, player)), this, ServicePriority.Normal);
+
         new Commands(this);
         new Events(this);
         service.start();

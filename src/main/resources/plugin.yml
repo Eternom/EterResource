@@ -6,8 +6,8 @@ api-version: '26.2'
 load: POSTWORLD
 authors: [ NadTum ]
 description: 'Mondes ressources : accès (créneaux, clés), temps, règles et bonus de métier.'
-depend: [EterLib]
-softdepend: [Vault]
+depend: [EterLib, EterEconomy]
+softdepend: [EterMarket]
 
 commands:
   ressource:

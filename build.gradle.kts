@@ -1,13 +1,21 @@
 plugins {
     id("java-library")
+    id("maven-publish")
 }
 
 repositories {
     // PaperMC en premier : Maven Central limite les téléchargements (429)
     maven("https://repo.papermc.io/repository/maven-public/")
     mavenCentral()
-    // EterLib et VaultAPI : compilés depuis GitHub
-    maven("https://jitpack.io")
+    // Plugins Eter (EterLib, API des autres plugins) : le jar de leur release GitHub (publiée par la CI à chaque tag)
+    ivy {
+        url = uri("https://github.com/Eternom/")
+        patternLayout { artifact("[module]/releases/download/[revision]/[module]-[revision].[ext]") }
+        metadataSources { artifact() }
+        content { includeGroup("com.github.Eternom") }
+    }
+    // Autres dépendances publiées sur JitPack (VaultAPI...)
+    maven("https://jitpack.io") { content { excludeGroup("com.github.Eternom") } }
     // Repli : EterLib publié sur cette machine (`gradlew publishToMavenLocal` dans EterLib), pour tester avant de pousser
     mavenLocal()
 }
@@ -16,11 +24,11 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.129-stable")
 
     // Socle commun : base, langues, menus, serveurs du réseau (plugin EterLib installé sur le serveur)
-    compileOnly("com.github.Eternom:EterLib:1.8.0")
-    // Achat de temps : Vault (fourni par EterEconomy)
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
-        exclude(group = "org.bukkit")
-    }
+    compileOnly("com.github.Eternom:EterLib:1.10.3")
+    // Métier des joueurs (bonus) : l'API d'EterMarket
+    compileOnly("com.github.Eternom:EterMarket:1.4.0")
+    // Argent : l'API d'EterEconomy (chaque mouvement avec sa source)
+    compileOnly("com.github.Eternom:EterEconomy:2.2.2")
 }
 
 java {
@@ -55,3 +63,13 @@ val deployPlugin by tasks.registering(Copy::class) {
     }
 }
 tasks.build { finalizedBy(deployPlugin) }
+
+// Publié pour les autres plugins (son API, fr.eternom.eterResource.api) : compileOnly("com.github.Eternom:EterResource:<tag>")
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            artifactId = "EterResource"
+            from(components["java"])
+        }
+    }
+}
