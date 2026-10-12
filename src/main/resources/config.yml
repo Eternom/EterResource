@@ -58,4 +58,4 @@ jobs:
 # les menus entre eux ; vide, il ferme le menu.
 menus:
   access:
-    back-command: ""
+    back-command: "menu voyager"
