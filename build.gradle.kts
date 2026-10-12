@@ -24,7 +24,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.129-stable")
 
     // Socle commun : base, langues, menus, serveurs du réseau (plugin EterLib installé sur le serveur)
-    compileOnly("com.github.Eternom:EterLib:1.10.3")
+    compileOnly("com.github.Eternom:EterLib:1.11.1")
     // Métier des joueurs (bonus) : l'API d'EterMarket
     compileOnly("com.github.Eternom:EterMarket:1.4.0")
     // Argent : l'API d'EterEconomy (chaque mouvement avec sa source)

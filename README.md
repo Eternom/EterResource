@@ -12,7 +12,7 @@ Un seul jar, deux rôles selon le serveur :
 
 ## Prérequis
 
-- **EterLib 1.10.0+** (`depend`) : base, langues et textes communs, menus (cadre, bouton Retour, Dialogs), joueurs par
+- **EterLib 1.11.0+** (`depend`) : base, langues et textes communs, menus (cadre, bouton Retour, Dialogs), joueurs par
   serveur (`countByServer`), annuaire des joueurs (`find`), envoi vers un serveur (`getTeleports().connect`).
 - **EterEconomy 2.2.2+** (`softdepend`, son API `EconomyApi`) pour l'achat ; sans économie, seules les clés marchent.
 - **EterMarket** sur les mondes ressources, pour les bonus de métier (son API `MarketApi`, EterMarket 1.4.0+)
@@ -47,7 +47,9 @@ Un seul jar, deux rôles selon le serveur :
   5 s, et sont retirés au départ en `LOWEST`, AVANT qu'EterSync (`MONITOR`) n'enregistre les effets du joueur : ils ne le
   suivent jamais sur un autre serveur. Seuls nos effets sont retirés (ambiants, même niveau, 15 s au plus) : une potion
   bue reste. L'abattage (64 bûches au plus, hache, pas accroupi) use la hache d'un point par bûche ; chaque bûche passe
-  par son propre `BlockBreakEvent` (protections respectées, et comptée par les quêtes d'EterMarket).
+  par son propre `BlockBreakEvent` (protections respectées, et comptée par les quêtes d'EterMarket). **Blocs posés par un
+  joueur** (EterLib `PlacedBlocks`) : une bûche posée n'est jamais abattue (une maison en bûches ne tombe pas d'un coup de
+  hache), et un minerai posé ne donne pas de bonus (sinon : Toucher de soie, reposer, recasser à la Fortune, en boucle).
 
 ## Permissions
 

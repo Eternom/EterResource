@@ -1,5 +1,6 @@
 package fr.eternom.eterResource.module.bonus;
 
+import fr.eternom.eterLib.EterLib;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -38,6 +39,11 @@ public class BonusListener implements Listener {
     private final JobBonuses bonuses;
     /** Pendant l'abattage : nos propres BlockBreakEvent ne relancent pas un abattage. */
     private boolean felling;
+    /**
+     * Minerais posés par un joueur, cassés ce tick : pas de bonus (sinon : récupérer au Toucher de soie, reposer, recasser
+     * à la Fortune, en boucle). La note « posé » d'EterLib disparaît à la casse, avant BlockDropItemEvent : on la retient ici.
+     */
+    private final Set<Block> placedOres = new HashSet<>();
 
     public BonusListener(JobBonuses bonuses) {
         this.bonuses = bonuses;
@@ -65,6 +71,10 @@ public class BonusListener implements Listener {
         }
         Player player = event.getPlayer();
         Block origin = event.getBlock();
+        if (EterLib.get().getPlacedBlocks().isPlaced(origin)) {
+            rememberPlacedOre(origin);
+            return; // bûche posée (maison, décor) : jamais d'abattage, ni de bonus
+        }
         if (!Tag.LOGS.isTagged(origin.getType()) || player.isSneaking() || player.getGameMode() != GameMode.SURVIVAL
                 || !Tag.ITEMS_AXES.isTagged(player.getInventory().getItemInMainHand().getType())
                 || bonuses.of(player).filter(JobBonuses.Bonus::treeFelling).isEmpty()) {
@@ -123,6 +133,9 @@ public class BonusListener implements Listener {
         if (ore != Material.NETHER_QUARTZ_ORE && ORES.stream().noneMatch(tag -> tag.isTagged(ore))) {
             return;
         }
+        if (placedOres.contains(event.getBlock())) {
+            return; // minerai posé par un joueur
+        }
         double bonus = bonuses.of(event.getPlayer()).map(JobBonuses.Bonus::oreDropBonus).orElse(0.0);
         if (bonus <= 0) {
             return;
@@ -161,6 +174,12 @@ public class BonusListener implements Listener {
         return Math.min(amount, stack.getMaxStackSize());
     }
 
+    private void rememberPlacedOre(Block block) {
+        if (placedOres.add(block) && placedOres.size() == 1) {
+            org.bukkit.Bukkit.getScheduler().runTask(org.bukkit.Bukkit.getPluginManager().getPlugin("EterResource"), placedOres::clear);
+        }
+    }
+
     /** Bûches du même bois reliées à origin (diagonales comprises), sans origin. */
     private static List<Block> connectedLogs(Block origin) {
         Material wood = origin.getType();
@@ -173,7 +192,9 @@ public class BonusListener implements Listener {
                 for (int y = -1; y <= 1; y++) {
                     for (int z = -1; z <= 1; z++) {
                         Block next = current.getRelative(x, y, z);
-                        if (next.getType() == wood && seen.add(next) && logs.size() < MAX_LOGS) {
+                        // Seulement les bûches naturelles : une maison en bûches collée à l'arbre ne tombe pas avec lui
+                        if (next.getType() == wood && seen.add(next) && logs.size() < MAX_LOGS
+                                && !EterLib.get().getPlacedBlocks().isPlaced(next)) {
                             logs.add(next);
                             queue.add(next);
                         }
