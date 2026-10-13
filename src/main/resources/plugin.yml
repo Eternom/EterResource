@@ -17,7 +17,7 @@ commands:
     permission: eterresource.use
   eterresource:
     description: Administration des mondes ressources (staff, console).
-    usage: /eterresource <givekey|givetime|info> <joueur> [nombre]
+    usage: /eterresource <givekey|givetime|communitykey|info> <joueur> [nombre]
     permission: eterresource.admin
 
 permissions:

@@ -51,7 +51,9 @@ world:
   not-ready: "<error>Ce monde ressource se prépare encore, réessaie dans quelques minutes."
 
 admin:
-  usage: '<error>Utilisation : <accent>/eterresource givekey|givetime \<joueur> \<nombre></accent> ou <accent>/eterresource info \<joueur>'
+  usage: '<error>Utilisation : <accent>/eterresource givekey|givetime \<joueur> \<nombre></accent>, <accent>/eterresource communitykey \<acheteur> \<nombre></accent> ou <accent>/eterresource info \<joueur>'
+  communitykey: "<accent><amount></accent> <info>clé(s) donnée(s) à <accent><count></accent> <info>joueur(s) connecté(s), de la part de <accent><player>"
+  community: "<info>Merci <accent><player></accent> ! Chaque joueur connecté reçoit <accent><amount></accent> clé(s) de monde ressource (<accent>/ressource</accent>)."
   givekey: "<accent><amount></accent> <info>clé(s) donnée(s) à <accent><player></accent> <dark_gray>(clés : <keys>, temps : <time>)"
   givetime: "<accent><amount> min</accent> <info>données à <accent><player></accent> <dark_gray>(clés : <keys>, temps : <time>)"
   info: "<accent><player></accent> <info>: clés <accent><keys></accent>, temps <accent><time>"

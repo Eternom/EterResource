@@ -7,6 +7,7 @@ import fr.eternom.eterResource.listeners.Commands;
 import fr.eternom.eterResource.listeners.Events;
 import fr.eternom.eterResource.module.access.AccessRepository;
 import fr.eternom.eterResource.module.access.AccessService;
+import fr.eternom.eterResource.module.access.CommunityKeys;
 import fr.eternom.eterResource.module.bonus.JobBonuses;
 import fr.eternom.eterResource.module.world.Sessions;
 import fr.eternom.eterResource.module.world.WorldDirectory;
@@ -37,6 +38,7 @@ public final class Main extends JavaPlugin {
     private Messages messages;
     private AccessRepository access;
     private AccessService service;
+    private CommunityKeys community;
     private WorldSetup world;
     private Sessions sessions;
     private JobBonuses bonuses;
@@ -62,6 +64,7 @@ public final class Main extends JavaPlugin {
         String prefix = getConfig().getString("world-server-prefix", "ressource").toLowerCase(Locale.ROOT);
         boolean worldServer = !prefix.isEmpty() && lib.getServerName().toLowerCase(Locale.ROOT).startsWith(prefix);
         service = new AccessService(this, lib, messages, access, worlds, worldServer);
+        community = new CommunityKeys(this, lib, access, service, messages);
 
         if (worldServer) {
             world = new WorldSetup(this, worlds, lib.getServerName());
@@ -105,6 +108,10 @@ public final class Main extends JavaPlugin {
 
     public AccessService getService() {
         return service;
+    }
+
+    public CommunityKeys getCommunity() {
+        return community;
     }
 
     /** null hors d'un monde ressource. */

@@ -28,7 +28,9 @@ Un seul jar, deux rôles selon le serveur :
   ajouté d'abord, puis retiré si le paiement échoue. Menu `/ressource` (tête du joueur avec temps et clés, acheter
   avec confirmation en Dialog, utiliser une clé, partir sur le monde ouvert le moins rempli).
   `/eterresource givekey|givetime|info <joueur>` (staff et console, joueur hors ligne possible) : pour EterReward
-  ou un dédommagement ; `givetime` ignore le plafond.
+  ou un dédommagement ; `givetime` ignore le plafond. `/eterresource communitykey <acheteur> <n>` (`CommunityKeys`) :
+  n clés pour chaque joueur connecté sur le réseau (sans les invisibles), puis un merci à l'acheteur annoncé sur tous
+  les serveurs (NetworkBus, canal `eterresource`) ; pensé pour la clé communautaire de la boutique du site.
 - **`world`** :
   - `WorldDirectory` (table `eterresource_worlds`) : chaque monde y écrit son signe de vie toutes les 10 s et s'il est
     prêt. Sont proposés les mondes prêts vus depuis moins de 30 s et, si la table de l'orchestrateur

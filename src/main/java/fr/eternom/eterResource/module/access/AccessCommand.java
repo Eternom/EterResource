@@ -21,24 +21,27 @@ import java.util.logging.Level;
 /**
  * /ressource : le menu d'accès. /eterresource (staff, console comprise, ex : récompenses d'EterReward) :
  * givekey <joueur> <n>, givetime <joueur> <minutes> (sans plafond), info <joueur>. Le joueur peut être hors ligne
- * (annuaire des joueurs d'EterLib).
+ * (annuaire des joueurs d'EterLib). communitykey <acheteur> <n> : n clés pour chaque joueur connecté sur le réseau.
  */
 public class AccessCommand implements TabExecutor {
 
-    private static final List<String> ACTIONS = List.of("givekey", "givetime", "info");
+    private static final List<String> ACTIONS = List.of("givekey", "givetime", "communitykey", "info");
 
     private final JavaPlugin plugin;
     private final EterLib lib;
     private final AccessService service;
     private final AccessRepository access;
+    private final CommunityKeys community;
     private final Messages messages;
     private final BackButton back;
 
-    public AccessCommand(JavaPlugin plugin, EterLib lib, AccessService service, AccessRepository access, Messages messages) {
+    public AccessCommand(JavaPlugin plugin, EterLib lib, AccessService service, AccessRepository access, CommunityKeys community,
+                         Messages messages) {
         this.plugin = plugin;
         this.lib = lib;
         this.service = service;
         this.access = access;
+        this.community = community;
         this.messages = messages;
         this.back = lib.backButton(plugin.getConfig().getString("menus.access.back-command", ""));
     }
@@ -56,7 +59,7 @@ public class AccessCommand implements TabExecutor {
         String action = args.length > 0 ? args[0].toLowerCase(Locale.ROOT) : "";
         int amount = args.length > 2 ? parsePositive(args[2]) : 0;
         boolean valid = switch (action) {
-            case "givekey", "givetime" -> args.length == 3 && amount > 0;
+            case "givekey", "givetime", "communitykey" -> args.length == 3 && amount > 0;
             case "info" -> args.length == 2;
             default -> false;
         };
@@ -65,6 +68,10 @@ public class AccessCommand implements TabExecutor {
             return true;
         }
         String name = args[1];
+        if (action.equals("communitykey")) {
+            giveCommunity(sender, name, amount);
+            return true;
+        }
         // Annuaire et base : en tâche de fond, réponse sur le thread principal
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             String key;
@@ -117,6 +124,27 @@ public class AccessCommand implements TabExecutor {
             return lib.getOnlineNames().complete(args[1]);
         }
         return List.of();
+    }
+
+    /** Clés pour tous les joueurs connectés, puis merci à l'acheteur (son pseudo tel qu'enregistré, s'il est connu). */
+    private void giveCommunity(CommandSender sender, String buyerName, int amount) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            String buyer;
+            int count;
+            try {
+                buyer = lib.getPlayers().find(buyerName).map(NetworkPlayer::name).orElse(buyerName);
+                count = community.give(amount);
+            } catch (RuntimeException e) {
+                plugin.getLogger().log(Level.SEVERE, "/eterresource communitykey " + buyerName, e);
+                reply(sender, "error.generic");
+                return;
+            }
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                messages.send(sender, "admin.communitykey", "player", buyer, "amount", String.valueOf(amount),
+                        "count", String.valueOf(count));
+                community.announce(buyer, amount);
+            });
+        });
     }
 
     private void reply(CommandSender sender, String key, String... placeholders) {

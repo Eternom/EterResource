@@ -51,7 +51,9 @@ world:
   not-ready: "<error>This resource world is still being prepared, try again in a few minutes."
 
 admin:
-  usage: '<error>Usage: <accent>/eterresource givekey|givetime \<player> \<amount></accent> or <accent>/eterresource info \<player>'
+  usage: '<error>Usage: <accent>/eterresource givekey|givetime \<player> \<amount></accent>, <accent>/eterresource communitykey \<buyer> \<amount></accent> or <accent>/eterresource info \<player>'
+  communitykey: "<accent><amount></accent> <info>key(s) given to <accent><count></accent> <info>online player(s), from <accent><player>"
+  community: "<info>Thanks <accent><player></accent>! Every online player receives <accent><amount></accent> resource world key(s) (<accent>/ressource</accent>)."
   givekey: "<accent><amount></accent> <info>key(s) given to <accent><player></accent> <dark_gray>(keys: <keys>, time: <time>)"
   givetime: "<accent><amount> min</accent> <info>given to <accent><player></accent> <dark_gray>(keys: <keys>, time: <time>)"
   info: "<accent><player></accent><info>: keys <accent><keys></accent>, time <accent><time>"

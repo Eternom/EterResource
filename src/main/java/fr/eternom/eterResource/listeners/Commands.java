@@ -10,7 +10,8 @@ import java.util.Objects;
 public class Commands {
 
     public Commands(Main main) {
-        AccessCommand access = new AccessCommand(main, main.getLib(), main.getService(), main.getAccess(), main.getMessages());
+        AccessCommand access = new AccessCommand(main, main.getLib(), main.getService(), main.getAccess(), main.getCommunity(),
+                main.getMessages());
         register(main, "ressource", access);
         register(main, "eterresource", access);
     }
