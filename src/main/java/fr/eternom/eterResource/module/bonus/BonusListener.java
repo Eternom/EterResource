@@ -176,7 +176,7 @@ public class BonusListener implements Listener {
 
     private void rememberPlacedOre(Block block) {
         if (placedOres.add(block) && placedOres.size() == 1) {
-            org.bukkit.Bukkit.getScheduler().runTask(org.bukkit.Bukkit.getPluginManager().getPlugin("EterResource"), placedOres::clear);
+            Bukkit.getScheduler().runTask(Bukkit.getPluginManager().getPlugin("EterResource"), placedOres::clear);
         }
     }
 
