@@ -3,6 +3,7 @@ package fr.eternom.eterResource.module.access;
 import fr.eternom.eterLib.EterLib;
 import fr.eternom.eterLib.helper.economy.Money;
 import fr.eternom.eterLib.helper.message.Messages;
+import fr.eternom.eterLib.helper.gui.Sounds;
 import fr.eternom.eterLib.helper.task.Tasks;
 import fr.eternom.eterResource.module.access.AccessRepository.Access;
 import fr.eternom.eterResource.module.world.WorldDirectory;
@@ -127,7 +128,7 @@ public class AccessService {
             messages.send(player, "access.already-there");
         } else if (current.remainingMillis() <= 0) {
             messages.send(player, "access.no-time");
-            player.playSound(player, Sound.ENTITY_VILLAGER_NO, 0.6f, 1f);
+            Sounds.refuse(player);
         } else {
             best().ifPresentOrElse(world -> {
                 player.closeInventory();
@@ -135,7 +136,7 @@ public class AccessService {
                 lib.getTeleports().connect(player, world);
             }, () -> {
                 messages.send(player, "access.no-world");
-                player.playSound(player, Sound.ENTITY_VILLAGER_NO, 0.6f, 1f);
+                Sounds.refuse(player);
             });
         }
     }
@@ -176,7 +177,7 @@ public class AccessService {
             player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.6f, 1.2f);
             onTimeChanged.accept(player);
         } else {
-            player.playSound(player, Sound.ENTITY_VILLAGER_NO, 0.6f, 1f);
+            Sounds.refuse(player);
         }
     }
 }
