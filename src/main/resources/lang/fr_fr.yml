@@ -11,6 +11,16 @@ menu:
     name: "<accent><player>"
     time: "<info>Temps restant : <accent><time></accent> <dark_gray>(max <max>)"
     keys: "<info>Clés : <accent><keys>"
+    job: "<info>Métier : <accent><job>"
+    no-job: "<info>Pas de métier : choisis-en un au lobby pour avoir des bonus ici."
+    no-perk: "<info>Ton métier n'a pas de bonus ici."
+    perk:
+      effect: "<success>✔ <info><effect>"
+      ore: "<success>✔ <info>Minerais : <accent>+<percent> %"
+      tree: "<success>✔ <info>Arbres abattus d'un seul coup"
+      crop: "<success>✔ <info>Récoltes <accent>×<multiplier>"
+      mob: "<success>✔ <info>Butin des monstres : <accent>+<percent> %"
+      where: "<dark_gray>Bonus actifs en monde ressource seulement"
   buy:
     name: "<accent>Acheter <time>"
     price: "<info>Prix : <accent><price>"

@@ -8,7 +8,11 @@ import fr.eternom.eterLib.helper.gui.Items;
 import fr.eternom.eterLib.helper.gui.Menu;
 import fr.eternom.eterLib.helper.gui.Sounds;
 import fr.eternom.eterLib.helper.message.Messages;
+import fr.eternom.eterLib.helper.task.Tasks;
 import fr.eternom.eterResource.module.access.AccessRepository.Access;
+import fr.eternom.eterResource.module.bonus.JobBonuses.Bonus;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import io.papermc.paper.registry.data.dialog.DialogBase;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import org.bukkit.Bukkit;
@@ -17,12 +21,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Menu /ressource, 3 lignes : le joueur (temps restant, clés), acheter un créneau, utiliser une clé, partir.
- * Ouvert avec le temps et les clés lus juste avant ; rouvert à jour après un achat ou une clé.
+ * Menu /ressource, 3 lignes : le joueur (temps restant, clés, et les bonus de son métier sur le monde ressource),
+ * acheter un créneau, utiliser une clé, partir. Ouvert avec le temps, les clés et le métier lus juste avant ; rouvert à
+ * jour après un achat ou une clé.
  */
 public class AccessMenu implements Menu {
 
@@ -31,6 +38,7 @@ public class AccessMenu implements Menu {
     private static final int KEY = 14;
     private static final int GO = 16;
     private static final int BACK = 22;
+    private static final String[] ROMAN = {"I", "II", "III", "IV", "V"};
 
     private final JavaPlugin plugin;
     private final AccessService service;
@@ -38,23 +46,29 @@ public class AccessMenu implements Menu {
     private final BackButton back;
     private final Player viewer;
     private final Access access;
+    /** Métier du joueur, null s'il n'en a pas. */
+    private final String job;
     private final Inventory inventory;
 
-    private AccessMenu(JavaPlugin plugin, AccessService service, Messages messages, BackButton back, Player viewer, Access access) {
+    private AccessMenu(JavaPlugin plugin, AccessService service, Messages messages, BackButton back, Player viewer, Access access,
+                       String job) {
         this.plugin = plugin;
         this.service = service;
         this.messages = messages;
         this.back = back;
         this.viewer = viewer;
         this.access = access;
+        this.job = job;
         this.inventory = Bukkit.createInventory(this, 27, messages.get(viewer, "menu.title"));
         render();
     }
 
-    /** Lit le temps et les clés du joueur, puis ouvre le menu. */
+    /** Lit le temps, les clés et le métier du joueur, puis ouvre le menu. */
     public static void open(JavaPlugin plugin, AccessService service, Messages messages, BackButton back, Player player) {
-        service.load(player, access -> player.openInventory(
-                new AccessMenu(plugin, service, messages, back, player, access).getInventory()));
+        service.load(player, access -> Tasks.async(plugin, player, () -> service.perks().jobOf(player.getUniqueId()).orElse(""),
+                job -> player.openInventory(new AccessMenu(plugin, service, messages, back, player, access,
+                        job.isEmpty() ? null : job).getInventory()),
+                () -> messages.send(player, "error.generic")));
     }
 
     @Override
@@ -101,9 +115,12 @@ public class AccessMenu implements Menu {
 
     private void render() {
         Frame.draw(inventory, Material.ORANGE_STAINED_GLASS_PANE);
-        inventory.setItem(HEAD, Items.head(viewer.getPlayerProfile(), messages.get(viewer, "menu.head.name", "player", viewer.getName()),
-                List.of(messages.get(viewer, "menu.head.time", "time", time(access.remainingMillis()), "max", time(service.maxMillis())),
-                        messages.get(viewer, "menu.head.keys", "keys", String.valueOf(access.keys())))));
+        List<Component> head = new ArrayList<>(List.of(
+                messages.get(viewer, "menu.head.time", "time", time(access.remainingMillis()), "max", time(service.maxMillis())),
+                messages.get(viewer, "menu.head.keys", "keys", String.valueOf(access.keys())),
+                Component.empty()));
+        head.addAll(perks());
+        inventory.setItem(HEAD, Items.head(viewer.getPlayerProfile(), messages.get(viewer, "menu.head.name", "player", viewer.getName()), head));
         inventory.setItem(BUY, Items.item(Material.GOLD_INGOT, messages.get(viewer, "menu.buy.name", "time", time(service.slotMillis())),
                 List.of(service.slotPrice() > 0
                         ? messages.get(viewer, "menu.buy.price", "price", Money.format(service.slotPrice()))
@@ -119,6 +136,44 @@ public class AccessMenu implements Menu {
                             messages.get(viewer, access.remainingMillis() > 0 ? "menu.go.click" : "menu.go.no-time"))));
         }
         inventory.setItem(BACK, back.item(viewer));
+    }
+
+    /** Le métier et ce qu'il apporte sur le monde ressource ; sinon, comment en avoir. */
+    private List<Component> perks() {
+        if (job == null) {
+            return List.of(messages.get(viewer, "menu.head.no-job"));
+        }
+        List<Component> lines = new ArrayList<>();
+        lines.add(messages.get(viewer, "menu.head.job", "job", service.perks().name(viewer, job)));
+        Bonus bonus = service.perks().of(job).orElse(null);
+        if (bonus == null) {
+            lines.add(messages.get(viewer, "menu.head.no-perk"));
+            return lines;
+        }
+        for (PotionEffect effect : bonus.effects()) {
+            int level = effect.getAmplifier() + 1;
+            Component name = Component.translatable(effect.getType())
+                    .append(Component.text(" " + (level <= ROMAN.length ? ROMAN[level - 1] : String.valueOf(level))));
+            lines.add(messages.get(viewer, "menu.head.perk.effect", Placeholder.component("effect", name)));
+        }
+        if (bonus.oreDropBonus() > 0) {
+            lines.add(messages.get(viewer, "menu.head.perk.ore", "percent", percent(bonus.oreDropBonus())));
+        }
+        if (bonus.treeFelling()) {
+            lines.add(messages.get(viewer, "menu.head.perk.tree"));
+        }
+        if (bonus.cropMultiplier() > 1) {
+            lines.add(messages.get(viewer, "menu.head.perk.crop", "multiplier", String.valueOf(bonus.cropMultiplier())));
+        }
+        if (bonus.mobDropBonus() > 0) {
+            lines.add(messages.get(viewer, "menu.head.perk.mob", "percent", percent(bonus.mobDropBonus())));
+        }
+        lines.add(messages.get(viewer, "menu.head.perk.where"));
+        return lines;
+    }
+
+    private static String percent(double bonus) {
+        return String.valueOf(Math.round(bonus * 100));
     }
 
     private String time(long millis) {

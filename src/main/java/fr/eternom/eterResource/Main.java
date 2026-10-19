@@ -9,6 +9,7 @@ import fr.eternom.eterResource.module.access.AccessRepository;
 import fr.eternom.eterResource.module.access.AccessService;
 import fr.eternom.eterResource.module.access.CommunityKeys;
 import fr.eternom.eterResource.module.bonus.JobBonuses;
+import fr.eternom.eterResource.module.bonus.JobPerks;
 import fr.eternom.eterResource.module.world.Sessions;
 import fr.eternom.eterResource.module.world.WorldDirectory;
 import fr.eternom.eterResource.module.world.WorldSetup;
@@ -63,7 +64,8 @@ public final class Main extends JavaPlugin {
         WorldDirectory worlds = new WorldDirectory(database);
         String prefix = getConfig().getString("world-server-prefix", "ressource").toLowerCase(Locale.ROOT);
         boolean worldServer = !prefix.isEmpty() && lib.getServerName().toLowerCase(Locale.ROOT).startsWith(prefix);
-        service = new AccessService(this, lib, messages, access, worlds, worldServer);
+        service = new AccessService(this, lib, messages, access, worlds, worldServer,
+                new JobPerks(getConfig().getConfigurationSection("jobs"), getLogger()));
         community = new CommunityKeys(this, lib, access, service, messages);
 
         if (worldServer) {

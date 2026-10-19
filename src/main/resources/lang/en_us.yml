@@ -11,6 +11,16 @@ menu:
     name: "<accent><player>"
     time: "<info>Time left: <accent><time></accent> <dark_gray>(max <max>)"
     keys: "<info>Keys: <accent><keys>"
+    job: "<info>Job: <accent><job>"
+    no-job: "<info>No job: pick one in the lobby to get bonuses here."
+    no-perk: "<info>Your job has no bonus here."
+    perk:
+      effect: "<success>✔ <info><effect>"
+      ore: "<success>✔ <info>Ores: <accent>+<percent> %"
+      tree: "<success>✔ <info>Trees felled in one hit"
+      crop: "<success>✔ <info>Harvests <accent>×<multiplier>"
+      mob: "<success>✔ <info>Mob loot: <accent>+<percent> %"
+      where: "<dark_gray>Bonuses active in the resource world only"
   buy:
     name: "<accent>Buy <time>"
     price: "<info>Price: <accent><price>"

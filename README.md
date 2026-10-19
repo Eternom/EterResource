@@ -25,7 +25,8 @@ Un seul jar, deux rôles selon le serveur :
 - **`access`** : table `eterresource_access` (uuid, `remaining_ms`, `key_count`), commune au réseau. Chaque changement
   est UNE requête qui vérifie elle-même ses conditions (clé disponible, plafond `max-minutes`) : un double clic ou deux
   serveurs en même temps ne donnent jamais de temps en trop. Achat (`slot-price` pour `slot-minutes`) : le temps est
-  ajouté d'abord, puis retiré si le paiement échoue. Menu `/ressource` (tête du joueur avec temps et clés, acheter
+  ajouté d'abord, puis retiré si le paiement échoue. Menu `/ressource` (tête du joueur avec temps, clés, et son métier avec ses bonus sur le monde ressource
+  (`JobPerks` : `config.yml > jobs`, lus sur tous les serveurs ; métier par EterMarket), acheter
   avec confirmation en Dialog, utiliser une clé, partir sur le monde ouvert le moins rempli).
   `/eterresource givekey|givetime|info <joueur>` (staff et console, joueur hors ligne possible) : pour EterReward
   ou un dédommagement ; `givetime` ignore le plafond. `/eterresource communitykey <acheteur> <n>` (`CommunityKeys`) :

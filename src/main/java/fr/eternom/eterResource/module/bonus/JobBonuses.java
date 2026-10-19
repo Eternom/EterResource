@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 /**
  * Bonus de métier sur le monde ressource (config.yml > jobs). Le métier vient d'EterMarket
@@ -45,7 +46,7 @@ public class JobBonuses {
 
     public JobBonuses(JavaPlugin plugin) {
         this.plugin = plugin;
-        this.byJob = read(plugin.getConfig().getConfigurationSection("jobs"));
+        this.byJob = read(plugin.getConfig().getConfigurationSection("jobs"), plugin.getLogger());
     }
 
     public void start() {
@@ -103,7 +104,8 @@ public class JobBonuses {
         }
     }
 
-    private Map<String, Bonus> read(ConfigurationSection jobs) {
+    /** Les bonus de config.yml > jobs, par métier. */
+    static Map<String, Bonus> read(ConfigurationSection jobs, Logger logger) {
         Map<String, Bonus> bonuses = new HashMap<>();
         if (jobs == null) {
             return bonuses;
@@ -115,7 +117,7 @@ public class JobBonuses {
                 PotionEffectType type = Registry.EFFECT.get(NamespacedKey.minecraft(parts[0].trim().toLowerCase(Locale.ROOT)));
                 int level = parts.length > 1 ? parseLevel(parts[1]) : 1;
                 if (type == null || level < 1) {
-                    plugin.getLogger().warning("jobs." + job + ".effects : « " + entry + " » ignoré (effet:niveau, ex : haste:1)");
+                    logger.warning("jobs." + job + ".effects : « " + entry + " » ignoré (effet:niveau, ex : haste:1)");
                     continue;
                 }
                 // Discret : sans particules, avec l'icône

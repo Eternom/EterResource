@@ -1,5 +1,6 @@
 package fr.eternom.eterResource.module.access;
 
+import fr.eternom.eterResource.module.bonus.JobPerks;
 import fr.eternom.eterLib.EterLib;
 import fr.eternom.eterLib.helper.economy.Money;
 import fr.eternom.eterLib.helper.message.Messages;
@@ -30,6 +31,8 @@ public class AccessService {
 
     private static final long REFRESH_TICKS = 5 * 20;
 
+    /** Bonus de métier, montrés dans le menu (appliqués seulement sur le monde ressource). */
+    private final JobPerks perks;
     private final JavaPlugin plugin;
     private final EterLib lib;
     private final Messages messages;
@@ -46,7 +49,8 @@ public class AccessService {
     private volatile Map<String, Integer> counts = Map.of();
 
     public AccessService(JavaPlugin plugin, EterLib lib, Messages messages, AccessRepository access, WorldDirectory worlds,
-                         boolean worldServer) {
+                         boolean worldServer, JobPerks perks) {
+        this.perks = perks;
         this.plugin = plugin;
         this.lib = lib;
         this.messages = messages;
@@ -80,6 +84,10 @@ public class AccessService {
     }
 
     /** Temps et clés du joueur (tâche de fond), puis then sur le thread principal. */
+    public JobPerks perks() {
+        return perks;
+    }
+
     public void load(Player player, Consumer<Access> then) {
         Tasks.async(plugin, player, () -> access.get(player.getUniqueId()), then, () -> messages.send(player, "error.generic"));
     }
