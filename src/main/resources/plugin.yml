@@ -7,7 +7,7 @@ load: POSTWORLD
 authors: [ NadTum ]
 description: 'Mondes ressources : accès (créneaux, clés), temps, règles et bonus de métier.'
 depend: [EterLib, EterEconomy]
-softdepend: [EterMarket]
+softdepend: [EterJob]
 
 commands:
   ressource:

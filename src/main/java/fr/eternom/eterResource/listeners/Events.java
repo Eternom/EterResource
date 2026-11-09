@@ -10,7 +10,7 @@ public class Events {
         // Seulement sur un monde ressource : ailleurs, EterResource ne fait que l'accès (/ressource)
         if (main.getSessions() != null) {
             register(main, main.getSessions());
-            register(main, new BonusListener(main.getBonuses()));
+            register(main, new BonusListener(main, main.getBonuses()));
         }
     }
 

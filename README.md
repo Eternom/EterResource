@@ -15,8 +15,8 @@ Un seul jar, deux rôles selon le serveur :
 - **EterLib 1.15.0+** (`depend`) : base, langues et textes communs, menus (cadre, bouton Retour, Dialogs), joueurs par
   serveur (`countByServer`), annuaire des joueurs (`find`), envoi vers un serveur (`getTeleports().connect`).
 - **EterEconomy 2.2.2+** (`softdepend`, son API `EconomyApi`) pour l'achat ; sans économie, seules les clés marchent.
-- **EterMarket** sur les mondes ressources, pour les bonus de métier (son API `MarketApi`, EterMarket 1.4.0+)
-  et pour que les quêtes de métier comptent aussi là-bas.
+- **EterJob 2.0.0+** (`softdepend`, son API `JobApi`) : le métier, le rang et les **avantages du rang** de chaque joueur
+  (réglés dans EterJob > perks) ; et pour que les quêtes de métier comptent aussi sur les mondes ressources.
 - **EterVelocityLobby** : un joueur expulsé d'un monde ressource (temps écoulé, monde pas prêt) est renvoyé au lobby,
   avec la raison.
 
@@ -26,7 +26,7 @@ Un seul jar, deux rôles selon le serveur :
   est UNE requête qui vérifie elle-même ses conditions (clé disponible, plafond `max-minutes`) : un double clic ou deux
   serveurs en même temps ne donnent jamais de temps en trop. Achat (`slot-price` pour `slot-minutes`) : le temps est
   ajouté d'abord, puis retiré si le paiement échoue. Menu `/ressource` (tête du joueur avec temps, clés, et son métier avec ses bonus sur le monde ressource
-  (`JobPerks` : `config.yml > jobs`, lus sur tous les serveurs ; métier par EterMarket), acheter
+  (`JobPerks` : métier, rang et avantages lus dans EterJob, sur tous les serveurs), acheter
   avec confirmation en Dialog, utiliser une clé, partir sur le monde ouvert le moins rempli).
   `/eterresource givekey|givetime|info <joueur>` (staff et console, joueur hors ligne possible) : pour EterReward
   ou un dédommagement ; `givetime` ignore le plafond. `/eterresource communitykey <acheteur> <n>` (`CommunityKeys`) :
@@ -44,13 +44,15 @@ Un seul jar, deux rôles selon le serveur :
     APRÈS l'arrêt des plugins), et le temps restant est relu au passage (un achat fait sur le monde compte tout de
     suite). Rappels à 15, 5 et 1 min ; compte à rebours dans l'action bar les 5 dernières minutes.
     `eterresource.bypass.time` : le staff entre sans temps et n'en consomme pas.
-- **`bonus`** : métier relu à l'arrivée puis chaque minute ; `jobs.<métier>` dans config.yml (effets, abattage
-  d'arbre, récoltes multipliées, minerais en plus pour le mineur, butin des créatures). Les effets durent 15 s,
+- **`bonus`** : avantages relus à l'arrivée puis chaque minute dans EterJob (`JobApi#perks` : son métier ET son rang,
+  cumulés) : effets, abattage d'arbre (pousse replantée, pommes), petits filons d'un coup (`vein-mining`), fonte
+  directe du fer, de l'or et du cuivre, minerais en plus, récoltes multipliées (replantées, houe en zone), butin, XP et
+  têtes des créatures, trésors et pêche plus rapide (`lure`). Les effets durent 15 s,
   sans particules, renouvelés toutes les
   5 s, et sont retirés au départ en `LOWEST`, AVANT qu'EterSync (`MONITOR`) n'enregistre les effets du joueur : ils ne le
   suivent jamais sur un autre serveur. Seuls nos effets sont retirés (ambiants, même niveau, 15 s au plus) : une potion
   bue reste. L'abattage (64 bûches au plus, hache, pas accroupi) use la hache d'un point par bûche ; chaque bûche passe
-  par son propre `BlockBreakEvent` (protections respectées, et comptée par les quêtes d'EterMarket). **Blocs posés par un
+  par son propre `BlockBreakEvent` (protections respectées, et comptée par les quêtes d'EterJob) ; de même pour les filons et la houe en zone. **Blocs posés par un
   joueur** (EterLib `PlacedBlocks`) : une bûche posée n'est jamais abattue (une maison en bûches ne tombe pas d'un coup de
   hache), et un minerai posé ne donne pas de bonus (sinon : Toucher de soie, reposer, recasser à la Fortune, en boucle).
 
@@ -76,7 +78,7 @@ Un seul jar, deux rôles selon le serveur :
   connecté ici voit tout de suite son nouveau temps) ;
 - `isResourceServer()`, `openMenu(joueur)`.
 
-Ce qu'EterResource demande aux autres : le **métier** d'un joueur à EterMarket (`MarketApi`, bonus de métier),
+Ce qu'EterResource demande aux autres : le **métier et les avantages du rang** d'un joueur à EterJob (`JobApi`),
 l'**argent** à EterEconomy (`EconomyApi`, source « EterResource · créneau »). Seule lecture hors de ses tables :
 `eterresource_servers`, la table de son orchestrateur (EterVelocityResource, la moitié proxy des mondes ressources),
 pour ne pas proposer un monde en cours de vidange.

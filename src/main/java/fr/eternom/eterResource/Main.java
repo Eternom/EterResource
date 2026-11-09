@@ -65,7 +65,7 @@ public final class Main extends JavaPlugin {
         String prefix = getConfig().getString("world-server-prefix", "ressource").toLowerCase(Locale.ROOT);
         boolean worldServer = !prefix.isEmpty() && lib.getServerName().toLowerCase(Locale.ROOT).startsWith(prefix);
         service = new AccessService(this, lib, messages, access, worlds, worldServer,
-                new JobPerks(getConfig().getConfigurationSection("jobs"), getLogger()));
+                new JobPerks());
         community = new CommunityKeys(this, lib, access, service, messages);
 
         if (worldServer) {

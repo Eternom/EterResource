@@ -46,28 +46,28 @@ public class AccessMenu implements Menu {
     private final BackButton back;
     private final Player viewer;
     private final Access access;
-    /** Métier du joueur, null s'il n'en a pas. */
-    private final String job;
+    /** Métier, rang et avantages du joueur (EterJob), null s'il n'a pas de métier. */
+    private final Bonus bonus;
     private final Inventory inventory;
 
     private AccessMenu(JavaPlugin plugin, AccessService service, Messages messages, BackButton back, Player viewer, Access access,
-                       String job) {
+                       Bonus bonus) {
         this.plugin = plugin;
         this.service = service;
         this.messages = messages;
         this.back = back;
         this.viewer = viewer;
         this.access = access;
-        this.job = job;
+        this.bonus = bonus;
         this.inventory = Bukkit.createInventory(this, 27, messages.get(viewer, "menu.title"));
         render();
     }
 
     /** Lit le temps, les clés et le métier du joueur, puis ouvre le menu. */
     public static void open(JavaPlugin plugin, AccessService service, Messages messages, BackButton back, Player player) {
-        service.load(player, access -> Tasks.async(plugin, player, () -> service.perks().jobOf(player.getUniqueId()).orElse(""),
-                job -> player.openInventory(new AccessMenu(plugin, service, messages, back, player, access,
-                        job.isEmpty() ? null : job).getInventory()),
+        service.load(player, access -> Tasks.async(plugin, player, () -> service.perks().of(player.getUniqueId()),
+                bonus -> player.openInventory(new AccessMenu(plugin, service, messages, back, player, access,
+                        bonus.orElse(null)).getInventory()),
                 () -> messages.send(player, "error.generic")));
     }
 
@@ -140,13 +140,13 @@ public class AccessMenu implements Menu {
 
     /** Le métier et ce qu'il apporte sur le monde ressource ; sinon, comment en avoir. */
     private List<Component> perks() {
-        if (job == null) {
+        if (bonus == null) {
             return List.of(messages.get(viewer, "menu.head.no-job"));
         }
         List<Component> lines = new ArrayList<>();
-        lines.add(messages.get(viewer, "menu.head.job", "job", service.perks().name(viewer, job)));
-        Bonus bonus = service.perks().of(job).orElse(null);
-        if (bonus == null) {
+        lines.add(messages.get(viewer, "menu.head.job-rank", "job", service.perks().name(viewer, bonus.job()),
+                "rank", service.perks().rankName(viewer, bonus.rank())));
+        if (bonus.effects().isEmpty() && bonus.values().values().stream().noneMatch(value -> value > 0)) {
             lines.add(messages.get(viewer, "menu.head.no-perk"));
             return lines;
         }
@@ -156,18 +156,12 @@ public class AccessMenu implements Menu {
                     .append(Component.text(" " + (level <= ROMAN.length ? ROMAN[level - 1] : String.valueOf(level))));
             lines.add(messages.get(viewer, "menu.head.perk.effect", Placeholder.component("effect", name)));
         }
-        if (bonus.oreDropBonus() > 0) {
-            lines.add(messages.get(viewer, "menu.head.perk.ore", "percent", percent(bonus.oreDropBonus())));
-        }
-        if (bonus.treeFelling()) {
-            lines.add(messages.get(viewer, "menu.head.perk.tree"));
-        }
-        if (bonus.cropMultiplier() > 1) {
-            lines.add(messages.get(viewer, "menu.head.perk.crop", "multiplier", String.valueOf(bonus.cropMultiplier())));
-        }
-        if (bonus.mobDropBonus() > 0) {
-            lines.add(messages.get(viewer, "menu.head.perk.mob", "percent", percent(bonus.mobDropBonus())));
-        }
+        bonus.values().forEach((key, value) -> {
+            if (value > 0 && messages.raw(viewer, "menu.head.perk." + key) != null) {
+                lines.add(messages.get(viewer, "menu.head.perk." + key, "percent", percent(value),
+                        "value", value == Math.rint(value) ? String.valueOf((long) (double) value) : String.valueOf(value)));
+            }
+        });
         lines.add(messages.get(viewer, "menu.head.perk.where"));
         return lines;
     }

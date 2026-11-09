@@ -25,8 +25,8 @@ dependencies {
 
     // Socle commun : base, langues, menus, serveurs du réseau (plugin EterLib installé sur le serveur)
     compileOnly("com.github.Eternom:EterLib:1.20.1")
-    // Métier des joueurs (bonus) : l'API d'EterMarket
-    compileOnly("com.github.Eternom:EterMarket:1.4.0")
+    // Métier, rang et avantages des joueurs : l'API d'EterJob
+    compileOnly("com.github.Eternom:EterJob:2.0.0")
     // Argent : l'API d'EterEconomy (chaque mouvement avec sa source)
     compileOnly("com.github.Eternom:EterEconomy:2.2.2")
 }

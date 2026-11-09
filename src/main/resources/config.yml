@@ -33,26 +33,8 @@ world:
     nether: 128
     the_end: 0
 
-# Bonus de métier sur les mondes ressources (métier d'EterMarket ; sans métier : aucun bonus).
-#   effects          effet:niveau (noms Minecraft : haste, strength, night_vision, luck, dolphins_grace...)
-#   tree-felling     casser une bûche à la hache abat l'arbre (pas en s'accroupissant)
-#   crop-multiplier  cultures mûres : récolte multipliée
-#   mob-drop-bonus   butin des créatures tuées : 0.5 = +50 %
-#   ore-drop-bonus   minerais cassés (sauf Toucher de soie et débris antiques) : 0.5 = +50 %
-jobs:
-  mineur:
-    effects: ['haste:1']
-    ore-drop-bonus: 0.5
-  bucheron:
-    effects: ['haste:1']
-    tree-felling: true
-  fermier:
-    crop-multiplier: 2
-  chasseur:
-    effects: ['strength:1']
-    mob-drop-bonus: 0.5
-  pecheur:
-    effects: ['luck:1', 'dolphins_grace:1']
+# Avantages de métier sur les mondes ressources : ils se règlent dans la config d'EterJob (perks), par métier ET par rang.
+# EterResource les applique ici seulement (sans EterJob : aucun).
 
 # Menu /ressource : bouton en bas. Avec une commande (sans le /), il la lance pour le joueur et relie
 # les menus entre eux ; vide, il ferme le menu.
