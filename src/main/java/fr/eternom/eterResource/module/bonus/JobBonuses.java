@@ -62,12 +62,14 @@ public class JobBonuses {
     static final int EFFECT_TICKS = 15 * 20;
 
     private final JavaPlugin plugin;
+    private final fr.eternom.eterLib.helper.message.Messages messages;
     /** Avantages des joueurs connectés qui ont un métier. */
     private final Map<UUID, Bonus> active = new ConcurrentHashMap<>();
     private volatile boolean warned;
 
-    public JobBonuses(JavaPlugin plugin) {
+    public JobBonuses(JavaPlugin plugin, fr.eternom.eterLib.helper.message.Messages messages) {
         this.plugin = plugin;
+        this.messages = messages;
     }
 
     public void start() {
@@ -80,10 +82,21 @@ public class JobBonuses {
         return Optional.ofNullable(active.get(player.getUniqueId()));
     }
 
-    /** À l'arrivée : avantages lus en tâche de fond. */
+    /** À l'arrivée : avantages lus en tâche de fond, puis rappelés au joueur (son métier, son rang). */
     public void join(Player player) {
         UUID uuid = player.getUniqueId();
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> load(uuid));
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            load(uuid);
+            Bonus bonus = active.get(uuid);
+            if (bonus != null) {
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    if (player.isOnline()) {
+                        messages.send(player, "bonus.active", "job", JobLink.name(player, bonus.job()),
+                                "rank", JobLink.rankName(player, bonus.rank()));
+                    }
+                }, 40);
+            }
+        });
     }
 
     /** Au départ : avantages oubliés et effets retirés (seulement ceux qu'on a donnés). */

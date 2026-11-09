@@ -79,3 +79,6 @@ admin:
   info: "<accent><player></accent><info>: keys <accent><keys></accent>, time <accent><time>"
   received-key: "<info>You received <accent><amount></accent> resource world key(s) (<accent>/ressource</accent>)."
   received-time: "<info>You received <accent><amount> min</accent> of resource world (<accent>/ressource</accent>)."
+
+bonus:
+  active: "<info>Your <accent><rank> <job></accent> perks are active in this world (<accent>/job avantages</accent>)."

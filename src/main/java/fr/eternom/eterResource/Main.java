@@ -71,7 +71,7 @@ public final class Main extends JavaPlugin {
         if (worldServer) {
             world = new WorldSetup(this, worlds, lib.getServerName());
             sessions = new Sessions(this, lib, messages, access, world);
-            bonuses = new JobBonuses(this);
+            bonuses = new JobBonuses(this, messages);
             service.onTimeChanged(sessions::reload);
             world.start();
             sessions.start();

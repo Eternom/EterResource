@@ -79,3 +79,6 @@ admin:
   info: "<accent><player></accent> <info>: clés <accent><keys></accent>, temps <accent><time>"
   received-key: "<info>Tu as reçu <accent><amount></accent> clé(s) de monde ressource (<accent>/ressource</accent>)."
   received-time: "<info>Tu as reçu <accent><amount> min</accent> de monde ressource (<accent>/ressource</accent>)."
+
+bonus:
+  active: "<info>Tes avantages de <accent><rank> <job></accent> sont actifs dans ce monde (<accent>/job avantages</accent>)."
