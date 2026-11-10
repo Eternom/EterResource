@@ -120,7 +120,13 @@ admin:
   worlds-line: "<dark_gray> · <accent><server></accent> <gray><theme> · <opened> → <closed> · peak <peak> · <joins> joins"
   event-started: "<success>Event started."
   event-busy: "<error>An event is already running."
-  event-usage: "<error>/eterresource event gold-rush|golden-forest|meteor|treasure|challenge|end-window"
+  event-usage: "<error>/eterresource event info|tp|stop|gold-rush|golden-forest|meteor|treasure|challenge|end-window"
+  event-none: "<info>No event running (or without a place)."
+  event-info: "<info>Event <accent><event></accent> · <accent><time></accent> left · exact place: <accent><where></accent> <dark_gray>(/eterresource event tp)"
+  event-stopped: "<success>Event stopped."
+  places-header: "<info>Places of this world (<accent><count></accent>) <dark_gray>· /eterresource places tp \\<n°>"
+  places-line: "<dark_gray> <n>. <accent><type></accent> <gray><where> <dark_gray>· discovered by <found>"
+  places-unknown: "<error>Unknown place number (/eterresource places)."
 
 bonus:
   active: "<info>Your <accent><rank> <job></accent> perks are active in this world (<accent>/job perks</accent>)."

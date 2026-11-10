@@ -99,6 +99,10 @@ public class ResourceContent implements Listener {
         return bag;
     }
 
+    public Places places() {
+        return places;
+    }
+
     public WorldEvents events() {
         return events;
     }

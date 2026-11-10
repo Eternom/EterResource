@@ -120,6 +120,13 @@ public class WorldEvents implements Listener {
             default -> {
             }
         }
+        if ((kind == Kind.METEOR || kind == Kind.TREASURE) && target == null) {
+            plugin.getLogger().warning("Événement " + kind + " annulé : pas de place trouvée autour du camp");
+            current = null;
+            return false;
+        }
+        plugin.getLogger().info("Événement " + kind + (target == null ? "" : " en " + target.getBlockX() + " " + target.getBlockY() + " "
+                + target.getBlockZ()));
         for (Player player : Bukkit.getOnlinePlayers()) {
             Location where = target == null ? null : target;
             messages.send(player, "events." + key + ".start", "x", where == null ? "" : String.valueOf(round(where.getBlockX())),
@@ -403,6 +410,24 @@ public class WorldEvents implements Listener {
         } catch (NumberFormatException e) {
             return fallback;
         }
+    }
+
+    /** Le lieu de l'événement en cours (météorite, trésor), null sinon. */
+    public Location target() {
+        return target;
+    }
+
+    public long endsAt() {
+        return endsAt;
+    }
+
+    /** Arrêter l'événement en cours (staff). */
+    public boolean stop() {
+        if (current == null) {
+            return false;
+        }
+        end(false);
+        return true;
     }
 
     public Kind current() {

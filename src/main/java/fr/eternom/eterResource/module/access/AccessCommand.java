@@ -27,7 +27,7 @@ import java.util.logging.Level;
  */
 public class AccessCommand implements TabExecutor {
 
-    private static final List<String> ACTIONS = List.of("givekey", "givetime", "communitykey", "info", "testmode", "worlds", "event");
+    private static final List<String> ACTIONS = List.of("givekey", "givetime", "communitykey", "info", "testmode", "worlds", "event", "places");
     private static final List<String> PLAYER_ACTIONS = List.of("gift", "join", "bag");
     private fr.eternom.eterResource.module.world.WorldSetup world;
     private fr.eternom.eterResource.module.content.ResourceContent content;
@@ -72,6 +72,10 @@ public class AccessCommand implements TabExecutor {
         String first = args.length > 0 ? args[0].toLowerCase(Locale.ROOT) : "";
         if (first.equals("testmode")) {
             testMode(sender, args.length > 1 && args[1].equalsIgnoreCase("on"));
+            return true;
+        }
+        if (first.equals("places")) {
+            places(sender, args);
             return true;
         }
         if (first.equals("event")) {
@@ -153,8 +157,9 @@ public class AccessCommand implements TabExecutor {
             return List.of("on", "off");
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("event")) {
-            return java.util.Arrays.stream(fr.eternom.eterResource.module.content.WorldEvents.Kind.values())
-                    .map(kind -> kind.name().toLowerCase(Locale.ROOT).replace('_', '-')).toList();
+            return java.util.stream.Stream.concat(java.util.stream.Stream.of("info", "tp", "stop"),
+                    java.util.Arrays.stream(fr.eternom.eterResource.module.content.WorldEvents.Kind.values())
+                    .map(kind -> kind.name().toLowerCase(Locale.ROOT).replace('_', '-'))).toList();
         }
         if (args.length == 1) {
             return ACTIONS.stream().filter(action -> action.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
@@ -174,17 +179,69 @@ public class AccessCommand implements TabExecutor {
         this.content = content;
     }
 
-    /** /eterresource event <gold-rush|golden-forest|meteor|treasure|challenge|end-window> : lancer un événement ici. */
+    /**
+     * /eterresource event <type> : lancer un événement ici ; event info : celui en cours, son lieu exact ; event tp : y aller ;
+     * event stop : l'arrêter.
+     */
     private void startEvent(CommandSender sender, String name) {
         if (content == null || content.events() == null) {
             messages.send(sender, "admin.not-a-world");
             return;
         }
-        try {
-            var kind = fr.eternom.eterResource.module.content.WorldEvents.Kind.valueOf(name.toUpperCase(Locale.ROOT).replace('-', '_'));
-            messages.send(sender, content.events().begin(kind) ? "admin.event-started" : "admin.event-busy");
-        } catch (IllegalArgumentException e) {
-            messages.send(sender, "admin.event-usage");
+        var events = content.events();
+        switch (name.toLowerCase(Locale.ROOT)) {
+            case "", "info" -> {
+                if (events.current() == null) {
+                    messages.send(sender, "admin.event-none");
+                    return;
+                }
+                org.bukkit.Location at = events.target();
+                messages.send(sender, "admin.event-info", "event", events.current().name().toLowerCase(Locale.ROOT).replace('_', '-'),
+                        "time", lib.formatDuration(sender, Math.max(0, events.endsAt() - System.currentTimeMillis()) / 1000),
+                        "where", at == null ? "-" : at.getBlockX() + " " + at.getBlockY() + " " + at.getBlockZ());
+            }
+            case "tp" -> {
+                org.bukkit.Location at = events.target();
+                if (!(sender instanceof Player player) || at == null) {
+                    messages.send(sender, "admin.event-none");
+                    return;
+                }
+                player.teleport(at.clone().add(0.5, 4, 0.5));
+            }
+            case "stop" -> messages.send(sender, events.stop() ? "admin.event-stopped" : "admin.event-none");
+            default -> {
+                try {
+                    var kind = fr.eternom.eterResource.module.content.WorldEvents.Kind.valueOf(name.toUpperCase(Locale.ROOT).replace('-', '_'));
+                    messages.send(sender, events.begin(kind) ? "admin.event-started" : "admin.event-busy");
+                } catch (IllegalArgumentException e) {
+                    messages.send(sender, "admin.event-usage");
+                }
+            }
+        }
+    }
+
+    /** /eterresource places [tp <n°>] : les lieux du monde (coordonnées exactes), et y aller. */
+    private void places(CommandSender sender, String[] args) {
+        if (content == null || content.places() == null) {
+            messages.send(sender, "admin.not-a-world");
+            return;
+        }
+        var all = content.places().all();
+        if (args.length >= 3 && args[1].equalsIgnoreCase("tp") && sender instanceof Player player) {
+            int index = parsePositive(args[2]) - 1;
+            if (index < 0 || index >= all.size()) {
+                messages.send(sender, "admin.places-unknown");
+                return;
+            }
+            player.teleport(all.get(index).location().clone().add(0.5, 2, 0.5));
+            return;
+        }
+        messages.send(sender, "admin.places-header", "count", String.valueOf(all.size()));
+        for (int i = 0; i < all.size(); i++) {
+            var place = all.get(i);
+            messages.send(sender, "admin.places-line", "n", String.valueOf(i + 1), "type", place.type(),
+                    "where", place.location().getBlockX() + " " + place.location().getBlockY() + " " + place.location().getBlockZ(),
+                    "found", String.valueOf(place.discoveredBy().size()));
         }
     }
 
