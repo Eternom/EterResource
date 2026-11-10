@@ -12,6 +12,8 @@ public class Commands {
     public Commands(Main main) {
         AccessCommand access = new AccessCommand(main, main.getLib(), main.getService(), main.getAccess(), main.getCommunity(),
                 main.getMessages());
+        access.setWorld(main.getWorld());
+        access.setContent(main.getContent());
         register(main, "resource", access);
         register(main, "eterresource", access);
     }

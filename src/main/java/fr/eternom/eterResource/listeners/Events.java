@@ -7,9 +7,11 @@ import org.bukkit.event.Listener;
 public class Events {
 
     public Events(Main main) {
+        register(main, new fr.eternom.eterResource.module.access.AccessEvents(main, main.getService(), main.getAccess(), main.getMessages()));
         // Seulement sur un monde ressource : ailleurs, EterResource ne fait que l'accès (/resource)
         if (main.getSessions() != null) {
             register(main, main.getSessions());
+            register(main, main.getCamp());
             register(main, new BonusListener(main, main.getBonuses()));
         }
     }

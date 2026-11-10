@@ -12,29 +12,207 @@
 world-server-prefix: ressource
 
 access:
-  # Temps donné par un créneau acheté ou par une clé, en minutes.
+  # Temps donné par une clé, en minutes.
   slot-minutes: 30
-  # Prix d'un créneau (0 = achat désactivé, seulement les clés).
-  slot-price: 600
+  # Offres de temps du menu /resource (3 au plus) : plus long, moins cher à la minute. Vide : seulement les clés.
+  offers:
+    - {minutes: 30, price: 600}
+    - {minutes: 60, price: 1080}
+    - {minutes: 120, price: 1920}
   # Temps maximum en réserve, en minutes (au-delà, achat et clé sont refusés).
-  max-minutes: 120
+  max-minutes: 180
+  # Minutes gratuites chaque jour (à la première arrivée sur un serveur du réseau, heure de Paris). Un abonnement : la
+  # permission eterresource.daily.<minutes> (la plus grande l'emporte).
+  daily-free-minutes: 15
+  # Heure creuse : moins de « players » joueurs sur les mondes ressources ouverts -> le temps coûte « discount » de moins.
+  off-peak:
+    players: 5
+    discount: 0.2
+  # Offrir du temps : /resource gift <joueur> <minutes>, à partir de ce minimum.
+  gift-minimum-minutes: 10
+  # Un monde qui plante : le temps perdu (30 s au plus) est rendu, avec ce dédommagement, à l'arrivée suivante.
+  crash-refund-minutes: 2
 
-# Mondes ressources seulement. Dimensions : normal (surface), nether, the_end.
+# ---------- Mondes ressources seulement ----------
+
+# Plugins sans lesquels le monde n'est jamais proposé (une erreur au démarrage, au lieu de joueurs privés de quêtes).
+required-plugins: [EterJob, EterQuest]
+
+# Thème forcé (vide : celui du jour, voir rotation). Utile pour un monde de test (/eterresource testmode on).
+force-theme: ""
+
+# Thèmes : biomes où s'installe le camp de base (le centre du monde ; vide : le spawn), bordure (côté en blocs),
+# durée de vie (heures), minerais en plus (×), bonus de récolte par métier (chance en plus), événements plus fréquents.
+# Nom, sous-titre et icône : lang/ theme.<id>.
+themes:
+  foret:
+    biomes: [forest, birch_forest, dark_forest, flower_forest, old_growth_birch_forest]
+    border: 5000
+    lifetime-hours: 12
+    job-bonus: {bucheron: 0.25, chasseur: 0.1}
+  montagnes:
+    biomes: [jagged_peaks, stony_peaks, frozen_peaks, windswept_hills, meadow, grove]
+    border: 5000
+    lifetime-hours: 12
+    ore-multiplier: 1.5
+    job-bonus: {mineur: 0.25}
+  desert:
+    biomes: [desert, badlands, eroded_badlands, wooded_badlands]
+    border: 5000
+    lifetime-hours: 12
+    ore-multiplier: 1.2
+    job-bonus: {mineur: 0.1, chasseur: 0.15}
+  ocean:
+    biomes: [warm_ocean, lukewarm_ocean, ocean, beach]
+    border: 7000
+    lifetime-hours: 12
+    job-bonus: {pecheur: 0.3}
+  toundra:
+    biomes: [snowy_plains, ice_spikes, snowy_taiga, frozen_river]
+    border: 5000
+    lifetime-hours: 12
+    job-bonus: {chasseur: 0.2, bucheron: 0.1}
+  jungle:
+    biomes: [jungle, bamboo_jungle, sparse_jungle]
+    border: 5000
+    lifetime-hours: 12
+    job-bonus: {fermier: 0.25, bucheron: 0.15}
+  # Le monde « filon » : riche, court, plein d'événements (le week-end)
+  filon:
+    biomes: []
+    border: 4000
+    lifetime-hours: 6
+    ore-multiplier: 3
+    event-boost: 2
+    job-bonus: {mineur: 0.2}
+
+# Rotation : le thème de chaque jour (une liste : au hasard parmi eux).
+rotation:
+  monday: [foret]
+  tuesday: [montagnes]
+  wednesday: [desert]
+  thursday: [ocean]
+  friday: [toundra]
+  saturday: [jungle, filon]
+  sunday: [filon, foret, montagnes]
+
+# Le camp de base, au centre du monde : temps en pause dans ce rayon, rien ne s'y casse ni ne s'y pose.
+# Postes : un bloc (position [x, y, z] par rapport au centre ; y = 1 : sur la plateforme) et des actions d'EterLib au
+# clic. Noms : lang/ camp.station.<id>.
+camp:
+  radius: 12
+  stations:
+    sac: {block: BARREL, offset: [-3, 1, -3], action: "eterresource:bag"}
+    relais: {block: LECTERN, offset: [3, 1, -3], action: "eterjob:relay"}
+    marchand: {block: SMITHING_TABLE, offset: [-3, 1, 3], action: "eterresource:shop"}
+    carnet: {block: CARTOGRAPHY_TABLE, offset: [3, 1, 3], action: "eterresource:map"}
+
+# Le temps compte plus vite dans ces dimensions (× par seconde passée).
+time:
+  dimension-multiplier:
+    nether: 1.5
+    the_end: 2
+
+# Dimensions : normal (surface : la bordure du thème), nether, the_end.
 world:
-  # Taille de la bordure (côté, en blocs), centrée sur le spawn ; 0 = pas de bordure.
-  # Surface : 6000 garde les premiers fiefs de l'End (entre 1280 et 2816 blocs du centre).
+  # Taille de la bordure (côté, en blocs), centrée sur le camp ; 0 = pas de bordure.
   border:
     normal: 6000
     nether: 1000
     the_end: 4000
   # Prégénération autour du spawn avant d'accepter les joueurs (rayon en blocs, 0 = aucune).
   pregenerate:
-    normal: 512
+    normal: 768
     nether: 128
     the_end: 0
 
 # Avantages de métier sur les mondes ressources : ils se règlent dans la config d'EterJob (perks), par métier ET par rang.
 # EterResource les applique ici seulement (sans EterJob : aucun).
+
+# ---------- Contenu des mondes ressources ----------
+
+# Le sac de retour (poste « sac » du camp ; ailleurs : /resource bag). Lignes de 9 cases ; plus avec la permission
+# eterresource.bag.<lignes> (3 au plus).
+bag:
+  rows: 1
+
+# Le marchand du camp : lots de matériel (clic = 1 lot, Maj + clic = 4), payés par EterEconomy.
+shop:
+  items:
+    - {item: TORCH, amount: 32, price: 40}
+    - {item: COOKED_BEEF, amount: 16, price: 60}
+    - {item: BREAD, amount: 16, price: 30}
+    - {item: STONE_PICKAXE, amount: 1, price: 25}
+    - {item: IRON_PICKAXE, amount: 1, price: 180}
+    - {item: IRON_AXE, amount: 1, price: 160}
+    - {item: IRON_SHOVEL, amount: 1, price: 90}
+    - {item: LADDER, amount: 16, price: 30}
+    - {item: OAK_BOAT, amount: 1, price: 20}
+    - {item: WATER_BUCKET, amount: 1, price: 50}
+
+# Le marchand ambulant : passe au camp, avec ces échanges (« MATIÈRE quantité »), sans ceux de Minecraft.
+merchant:
+  enabled: true
+  interval-minutes: 45
+  stay-minutes: 10
+  trades:
+    - {cost: "EMERALD 4", result: "EXPERIENCE_BOTTLE 8", uses: 4}
+    - {cost: "EMERALD 6", result: "NAME_TAG 1", uses: 2}
+    - {cost: "DIAMOND 2", result: "SADDLE 1", uses: 2}
+    - {cost: "GOLD_INGOT 8", result: "GOLDEN_CARROT 16", uses: 4}
+    - {cost: "IRON_INGOT 12", result: "SPYGLASS 1", uses: 2}
+    - {cost: "EMERALD 10", result: "TRIDENT 1", uses: 1}
+
+# Les lieux à découvrir, posés quand le monde est prêt, entre min et max blocs du camp : constructions avec un coffre
+# (miners-camp, watchtower, ruins, dungeon, lava-well), filons riches (× ore-multiplier du thème) et bosquets.
+# Butin : « MATIÈRE min-max chance ».
+places:
+  min-distance: 120
+  max-distance: 650
+  buildings: 6
+  deposits: 5
+  groves: 3
+  loot:
+    default: ["BREAD 2-6 0.8", "IRON_INGOT 2-6 0.6", "GOLD_INGOT 1-4 0.4", "EMERALD 1-3 0.3", "DIAMOND 1-2 0.1"]
+    miners-camp: ["TORCH 8-16 1", "IRON_INGOT 3-8 0.7", "COAL 8-16 0.8", "RAIL 8-16 0.5", "DIAMOND 1-2 0.12"]
+    watchtower: ["ARROW 8-24 0.9", "BOW 1 0.4", "SPYGLASS 1 0.2", "GOLD_INGOT 2-5 0.5", "EMERALD 1-4 0.4"]
+    ruins: ["MOSSY_COBBLESTONE 4-12 0.6", "GOLD_NUGGET 4-16 0.7", "EMERALD 1-3 0.4", "NAME_TAG 1 0.15", "ENCHANTED_BOOK 1 0.1"]
+    dungeon: ["BONE 4-12 0.9", "IRON_INGOT 4-10 0.8", "GOLD_INGOT 3-8 0.6", "DIAMOND 1-3 0.25", "GOLDEN_APPLE 1 0.15", "SADDLE 1 0.2"]
+    lava-well: ["OBSIDIAN 4-8 0.8", "MAGMA_CREAM 2-6 0.6", "BLAZE_POWDER 2-4 0.4", "GOLD_BLOCK 1 0.15", "NETHERITE_SCRAP 1 0.05"]
+
+# Les événements : un à la fois, toutes les interval-minutes (÷ event-boost du thème), pendant duration-minutes.
+events:
+  interval-minutes: 30
+  duration-minutes: 10
+  enabled:
+    gold-rush: true
+    golden-forest: true
+    meteor: true
+    treasure: true
+    challenge: true
+    end-window: true
+  # Défi chronométré : blocs à casser, et la récompense (actions d'EterLib).
+  challenge-blocks: 200
+  challenge-reward: ["eterresource:addtime 10", "eterlib:reputation 2 défi du monde ressource"]
+  # Le trésor caché : son butin (« MATIÈRE quantité »).
+  treasure-loot: ["DIAMOND 3", "GOLD_BLOCK 2", "EMERALD 8", "GOLDEN_APPLE 2", "EXPERIENCE_BOTTLE 16"]
+  # L'End n'est ouvert que pendant son événement, avec ces places.
+  end-places: 10
+
+# La nuit : monstres plus solides (santé ×), et un meilleur butin (chance d'un butin doublé, et autant d'XP en plus).
+night:
+  health-multiplier: 1.5
+  loot-bonus: 0.5
+
+# À plusieurs (un autre joueur à moins de 32 blocs) : chance d'une récolte en plus (minerais, bûches).
+bonus:
+  group-chance: 0.1
+
+# Les règles : créatures nées d'un élevage / œuf / spawner par chunk, hoppers et droppers par chunk, alerte au staff.
+guard:
+  entities-per-chunk: 24
+  hoppers-per-chunk: 6
+  break-alert-per-minute: 400
 
 # Menu /resource : bouton en bas. Avec une commande (sans le /), il la lance pour le joueur et relie
 # les menus entre eux ; vide, il ferme le menu.

@@ -1,84 +1,98 @@
 # EterResource
 
 Les **mondes ressources** côté **Paper**. Document développeur, à tenir à jour avec le code.
-Les serveurs eux-mêmes (création, monde neuf, remplacement au bout de 12 h) sont gérés côté proxy par
-**EterVelocityResource**.
+Les serveurs eux-mêmes (création, monde neuf, remplacement) sont gérés côté proxy par **EterVelocityResource**.
 
 Un seul jar, deux rôles selon le serveur :
 
-- **Accès** (lobbys, survies… partout) : `/resource` pour acheter du temps, utiliser une clé et partir.
+- **Accès** (lobbys, survies… partout) : `/resource` pour acheter du temps, utiliser une clé, choisir un monde et
+  partir ; minutes gratuites du jour ; sac de retour ; récapitulatif de la dernière sortie.
 - **Monde ressource** (server-name qui commence par `world-server-prefix`, `ressource` par défaut, comme le
-  `name-prefix` d'EterVelocityResource) : préparation du monde, temps qui s'écoule, bonus de métier.
+  `name-prefix` d'EterVelocityResource) : thème, camp de base, temps, fermeture, lieux, événements, règles, bonus.
 
 ## Prérequis
 
-- **EterLib 1.15.0+** (`depend`) : base, langues et textes communs, menus (cadre, bouton Retour, Dialogs), joueurs par
-  serveur (`countByServer`), annuaire des joueurs (`find`), envoi vers un serveur (`getTeleports().connect`).
-- **EterEconomy 2.2.2+** (`softdepend`, son API `EconomyApi`) pour l'achat ; sans économie, seules les clés marchent.
-- **EterJob 2.0.0+** (`softdepend`, son API `JobApi`) : le métier, le rang et les **avantages du rang** de chaque joueur
-  (réglés dans EterJob > perks) ; et pour que les quêtes de métier comptent aussi sur les mondes ressources.
-- **EterVelocityLobby** : un joueur expulsé d'un monde ressource (temps écoulé, monde pas prêt) est renvoyé au lobby,
-  avec la raison.
+- **EterLib 1.25.0+** (`depend`) : base, langues, menus, Dialogs, annuaire des joueurs, envoi vers un serveur, actions,
+  activité (AFK), sidebar, pont des quêtes (QuestBridge), classements.
+- **EterEconomy 2.2.2+** (`depend`, `EconomyApi`) : achat de temps, marchand du camp.
+- **EterJob** (`softdepend`, `JobApi`) : métier, rang et avantages du rang ; le relais de la guilde (`eterjob:relay`).
+- Sur un monde ressource, `required-plugins` (EterJob, EterQuest par défaut) : sans eux, le monde n'est jamais proposé.
 
-## Modules
+## Accès (`module/access`)
 
-- **`access`** : table `eterresource_access` (uuid, `remaining_ms`, `key_count`), commune au réseau. Chaque changement
-  est UNE requête qui vérifie elle-même ses conditions (clé disponible, plafond `max-minutes`) : un double clic ou deux
-  serveurs en même temps ne donnent jamais de temps en trop. Achat (`slot-price` pour `slot-minutes`) : le temps est
-  ajouté d'abord, puis retiré si le paiement échoue. Menu `/resource` (tête du joueur avec temps, clés, et son métier avec ses bonus sur le monde ressource
-  (`JobPerks` : métier, rang et avantages lus dans EterJob, sur tous les serveurs), acheter
-  avec confirmation en Dialog, utiliser une clé, partir sur le monde ouvert le moins rempli).
-  `/eterresource givekey|givetime|info <joueur>` (staff et console, joueur hors ligne possible) : pour EterReward
-  ou un dédommagement ; `givetime` ignore le plafond. `/eterresource communitykey <acheteur> <n>` (`CommunityKeys`) :
-  n clés pour chaque joueur connecté sur le réseau (sans les invisibles), puis un merci à l'acheteur annoncé sur tous
-  les serveurs (NetworkBus, canal `eterresource`) ; pensé pour la clé communautaire de la boutique du site.
-- **`world`** :
-  - `WorldDirectory` (table `eterresource_worlds`) : chaque monde y écrit son signe de vie toutes les 10 s et s'il est
-    prêt. Sont proposés les mondes prêts vus depuis moins de 30 s et, si la table de l'orchestrateur
-    (`eterresource_servers`) existe, seulement ceux qu'il ne vide pas (`state = ACTIVE`).
-  - `WorldSetup` : au démarrage, sur toutes les dimensions, `KEEP_INVENTORY` et pas de `PVP` (règles de jeu : flèches
-    et potions comprises), bordure centrée sur le spawn (`world.border`), puis prégénération autour du spawn
-    (`world.pregenerate`, 8 chunks à la fois, du centre vers l'extérieur). Le monde n'est « prêt » qu'après.
-  - `Sessions` : à l'arrivée il faut un monde prêt et du temps, sinon expulsion. Le temps s'écoule chaque seconde
-    (en mémoire) ; le consommé part en base toutes les 30 s, au départ et à l'arrêt du serveur (les joueurs quittent
-    APRÈS l'arrêt des plugins), et le temps restant est relu au passage (un achat fait sur le monde compte tout de
-    suite). Rappels à 15, 5 et 1 min ; compte à rebours dans l'action bar les 5 dernières minutes.
-    `eterresource.bypass.time` : le staff entre sans temps et n'en consomme pas.
-- **`bonus`** : avantages relus à l'arrivée puis chaque minute dans EterJob (`JobApi#perks` : son métier ET son rang,
-  cumulés) : effets, abattage d'arbre (pousse replantée, pommes), petits filons d'un coup (`vein-mining`), fonte
-  directe du fer, de l'or et du cuivre, minerais en plus, récoltes multipliées (replantées, houe en zone), butin, XP et
-  têtes des créatures, trésors et pêche plus rapide (`lure`). Les effets durent 15 s,
-  sans particules, renouvelés toutes les
-  5 s, et sont retirés au départ en `LOWEST`, AVANT qu'EterSync (`MONITOR`) n'enregistre les effets du joueur : ils ne le
-  suivent jamais sur un autre serveur. Seuls nos effets sont retirés (ambiants, même niveau, 15 s au plus) : une potion
-  bue reste. L'abattage (64 bûches au plus, hache, pas accroupi) use la hache d'un point par bûche ; chaque bûche passe
-  par son propre `BlockBreakEvent` (protections respectées, et comptée par les quêtes d'EterJob) ; de même pour les filons et la houe en zone. **Blocs posés par un
-  joueur** (EterLib `PlacedBlocks`) : une bûche posée n'est jamais abattue (une maison en bûches ne tombe pas d'un coup de
-  hache), et un minerai posé ne donne pas de bonus (sinon : Toucher de soie, reposer, recasser à la Fortune, en boucle).
+- Table `eterresource_access` : temps (ms), clés, jour des minutes gratuites, session ouverte. Chaque changement est UNE
+  requête qui vérifie ses conditions : jamais de temps en trop (double clic, deux serveurs).
+- **Offres** (`access.offers`, 3 au plus) : plus long, moins cher à la minute ; **heure creuse** (`access.off-peak`) :
+  peu de joueurs sur les mondes ouverts, le temps est moins cher. Plafond `max-minutes`.
+- **Minutes du jour** (`daily-free-minutes`), ou d'un **abonnement** : permission `eterresource.daily.<minutes>`.
+- **Cadeau** : `/resource gift <joueur> <minutes>` (prévenu partout par le bus). **Rejoindre un ami** :
+  `/resource join <joueur>`. **Historique** (`eterresource_history`, 90 jours) dans le menu.
+- **Remboursement** : une session restée ouverte sur un monde qui a planté est rendue (+ `crash-refund-minutes`).
+- **Récapitulatif** (`eterresource_recaps`) : à la sortie, blocs, minerais, bûches, monstres, temps ; montré à
+  l'arrivée sur le serveur suivant.
+- Menu `/resource` : joueur (temps, clés, minutes du jour, avantages du métier), offres, clé, **mondes ouverts**
+  (thème, joueurs, fermeture, TPS ; clic pour y aller), historique, partir, offrir.
+- Actions EterLib : `eterresource:menu` (un PNJ ou un portail du lobby), `eterresource:go`,
+  `eterresource:addtime <minutes>` (récompense de quête), `eterresource:bag`.
+
+## Monde ressource (`module/world`, `module/theme`)
+
+- **Thèmes** (`themes`, rotation par jour `rotation`, `force-theme`) : biomes où s'installe le camp (le centre du monde,
+  `locateNearestBiome`), bordure, durée de vie (`lifetime-hours` → `close_at`), minerais en plus, bonus de métier,
+  événements plus fréquents. Forêt, montagnes, désert, océan, toundra, jungle, et le monde « filon » (riche, court).
+- `WorldSetup` : inventaire gardé, pas de PvP, **pas de sauvegarde automatique** (monde jetable), bordures,
+  prégénération ; prêt seulement après, plugins requis présents. Signe de vie (`eterresource_worlds`, 10 s) : thème,
+  joueurs, TPS, ouverture, fermeture, mode test (`/eterresource testmode on`). Journal des mondes
+  (`eterresource_world_log`, `/eterresource worlds`). Un nouveau monde prêt est annoncé sur tout le réseau.
+- **Camp de base** (`Camp`) : plateforme sûre au centre (même sur l'eau), spawn, postes (`camp.stations` : bloc +
+  action EterLib : sac de retour, relais de la guilde, marchand, carnet d'expédition), protégé ; **temps en pause** au
+  camp.
+- `Sessions` : temps qui s'écoule chaque seconde, sauf au camp et pendant l'**AFK** ; × `time.dimension-multiplier`
+  dans le Nether et l'End ; rappels, compte à rebours, **sidebar** (thème, temps, fermeture, événement, récolte),
+  **arrivée animée** ; envoi en base toutes les 30 s et au départ.
+- `Closing` : annonces à 1 h, 30, 10, 5, 1 min, barre de boss la dernière demi-heure, **tempête finale** (la bordure se
+  resserre vers le camp) ; à l'heure, chacun part sur un autre monde ouvert (sinon au lobby). EterVelocityResource vide
+  et remplace le serveur à `close_at`.
+
+## Contenu (`module/content`)
+
+- **Sac de retour** (`ReturnBag`, `eterresource_bags`) : petit coffre personnel commun au réseau, objets complets ;
+  `bag.rows`, permission `eterresource.bag.<lignes>`.
+- **Marchand du camp** (`CampShop`, `shop.items`) et **marchand ambulant** (`merchant`, échanges du réseau).
+- **Lieux** (`Places`, `places`) : camp de mineurs, tour de guet, ruines, donjon souterrain, puits de lave (coffres et
+  butin), filons riches, bosquets ; découverte en s'approchant ; **carnet d'expédition** (livre : direction, distance,
+  coordonnées des lieux découverts).
+- **Minerais en plus** (`OrePopulator`, `ore-multiplier` du thème).
+- **Événements** (`WorldEvents`, `events`) : ruée vers l'or, forêt dorée, météorite, trésor caché (chaud / froid), défi
+  chronométré, **ouverture de l'End** (le portail ne mène à l'End que pendant elle, places limitées) ;
+  `/eterresource event <type>`. Pas de boss (plus tard, avec EterMob).
+- **Nuit** plus dangereuse (`night`), **ressource du jour**, **bonus de groupe** (`bonus.group-chance`), **bonus de
+  métier du thème**.
+- **Règles** (`Guard`, `guard`) : coffres au propriétaire, créatures et hoppers limités par chunk, pas d'œuf sur un
+  spawner, alerte de cadence au staff.
+- **Classement** EterLib `resource_week` (blocs récoltés de la semaine, `eterresource_stats`).
+- **Quêtes** (EterQuest, par QuestBridge) : `eterresource:arrive {theme}`, `eterresource:discover {place, detail}`,
+  `eterresource:event {event, theme}`, `eterresource:meteor {block}`, `eterresource:treasure`, `eterresource:challenge`.
+  Quêtes de métier du monde ressource : dans les fichiers d'EterJob (`where: {servers: [ressource]}`).
+
+## Bonus de métier (`module/bonus`)
+
+Avantages relus à l'arrivée puis chaque minute dans EterJob (`JobApi#perks`) : effets, abattage, petits filons, fonte
+directe, minerais, récoltes, butin, XP et têtes, trésors et pêche. Les effets sont retirés au départ en `LOWEST`, AVANT
+qu'EterSync ne les enregistre. Les blocs posés par un joueur (EterLib `PlacedBlocks`) ne donnent aucun bonus.
 
 ## Permissions
 
 | Permission | Par défaut | Rôle |
 |---|---|---|
 | `eterresource.use` | tous | `/resource` |
+| `eterresource.daily.<minutes>` | - | Minutes gratuites par jour (abonnement) |
+| `eterresource.bag.<lignes>` | - | Sac de retour plus grand (3 lignes au plus) |
 | `eterresource.bypass.time` | op | Monde ressource sans temps |
-| `eterresource.admin` | op | Tout, dont `/eterresource` |
+| `eterresource.admin` | op | Tout : `/eterresource givekey\|givetime\|communitykey\|info\|testmode\|worlds\|event` |
 
 ## Technique
 
-- Le temps de l'action bar et des messages passe par `EterLib#formatDuration`.
 - Pas de config à garder sur un monde ressource : les valeurs du jar suffisent (le modèle n'a pas de dossier
   `plugins/EterResource`). Si on change `world-server-prefix`, changer aussi le `name-prefix` d'EterVelocityResource.
-
-## API (pour les autres plugins)
-
-`fr.eternom.eterResource.api.ResourceApi` (`ResourceApi.get()`) : personne d'autre ne lit `eterresource_access`.
-
-- `access(uuid)` : temps restant et clés (bloquant) ; `addTime(uuid, ms)`, `giveKeys(uuid, n)` (bloquant ; le joueur
-  connecté ici voit tout de suite son nouveau temps) ;
-- `isResourceServer()`, `openMenu(joueur)`.
-
-Ce qu'EterResource demande aux autres : le **métier et les avantages du rang** d'un joueur à EterJob (`JobApi`),
-l'**argent** à EterEconomy (`EconomyApi`, source « EterResource · créneau »). Seule lecture hors de ses tables :
-`eterresource_servers`, la table de son orchestrateur (EterVelocityResource, la moitié proxy des mondes ressources),
-pour ne pas proposer un monde en cours de vidange.
+- API : `fr.eternom.eterResource.api.ResourceApi` (`access`, `addTime`, `giveKeys`, `isResourceServer`, `openMenu`).

@@ -12,17 +12,18 @@ softdepend: [EterJob]
 commands:
   resource:
     description: Menu des mondes ressources (temps, clés, départ).
-    usage: /resource
+    usage: /resource [gift <joueur> <minutes>|join <joueur>]
     aliases: [rw]
     permission: eterresource.use
   eterresource:
     description: Administration des mondes ressources (staff, console).
-    usage: /eterresource <givekey|givetime|communitykey|info> <joueur> [nombre]
+    usage: /eterresource <givekey|givetime|communitykey|info> <joueur> [nombre] | testmode on|off | worlds
     permission: eterresource.admin
 
 permissions:
   eterresource.use:
     default: true
+  # eterresource.daily.<minutes> : minutes gratuites par jour (abonnement de la boutique), ex : eterresource.daily.60
   eterresource.bypass.time:
     description: Entrer sur un monde ressource sans temps, sans en consommer.
     default: op

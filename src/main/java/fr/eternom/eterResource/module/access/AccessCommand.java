@@ -22,10 +22,15 @@ import java.util.logging.Level;
  * /resource : le menu d'accès. /eterresource (staff, console comprise, ex : récompenses d'EterReward) :
  * givekey <joueur> <n>, givetime <joueur> <minutes> (sans plafond), info <joueur>. Le joueur peut être hors ligne
  * (annuaire des joueurs d'EterLib). communitykey <acheteur> <n> : n clés pour chaque joueur connecté sur le réseau.
+ * testmode on|off : ce monde ressource n'est plus proposé (seul le staff y entre) ; worlds : le journal des mondes.
+ * /resource gift <joueur> <minutes> : offrir du temps ; /resource join <joueur> : rejoindre le monde d'un ami.
  */
 public class AccessCommand implements TabExecutor {
 
-    private static final List<String> ACTIONS = List.of("givekey", "givetime", "communitykey", "info");
+    private static final List<String> ACTIONS = List.of("givekey", "givetime", "communitykey", "info", "testmode", "worlds", "event");
+    private static final List<String> PLAYER_ACTIONS = List.of("gift", "join", "bag");
+    private fr.eternom.eterResource.module.world.WorldSetup world;
+    private fr.eternom.eterResource.module.content.ResourceContent content;
 
     private final JavaPlugin plugin;
     private final EterLib lib;
@@ -49,11 +54,32 @@ public class AccessCommand implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equals("resource")) {
-            if (sender instanceof Player player) {
-                AccessMenu.open(plugin, service, messages, back, player);
-            } else {
+            if (!(sender instanceof Player player)) {
                 messages.send(sender, "command.players-only");
+            } else if (args.length >= 3 && args[0].equalsIgnoreCase("gift")) {
+                gift(player, args[1], parsePositive(args[2]));
+            } else if (args.length >= 1 && args[0].equalsIgnoreCase("bag") && content != null) {
+                content.bag().open(player);
+            } else if (args.length >= 2 && args[0].equalsIgnoreCase("join")) {
+                service.join(player, args[1]);
+            } else if (args.length > 0) {
+                messages.send(player, "access.usage");
+            } else {
+                AccessMenu.open(plugin, service, messages, back, player);
             }
+            return true;
+        }
+        String first = args.length > 0 ? args[0].toLowerCase(Locale.ROOT) : "";
+        if (first.equals("testmode")) {
+            testMode(sender, args.length > 1 && args[1].equalsIgnoreCase("on"));
+            return true;
+        }
+        if (first.equals("event")) {
+            startEvent(sender, args.length > 1 ? args[1] : "");
+            return true;
+        }
+        if (first.equals("worlds")) {
+            worldLog(sender);
             return true;
         }
         String action = args.length > 0 ? args[0].toLowerCase(Locale.ROOT) : "";
@@ -85,7 +111,10 @@ public class AccessCommand implements TabExecutor {
                 NetworkPlayer player = target.get();
                 switch (action) {
                     case "givekey" -> access.giveKeys(player.uuid(), amount);
-                    case "givetime" -> access.addTime(player.uuid(), Duration.ofMinutes(amount).toMillis(), Long.MAX_VALUE / 2);
+                    case "givetime" -> {
+                        access.addTime(player.uuid(), Duration.ofMinutes(amount).toMillis(), Long.MAX_VALUE / 2);
+                        access.log(player.uuid(), Duration.ofMinutes(amount).toMillis(), "staff:" + sender.getName());
+                    }
                     default -> {
                     }
                 }
@@ -115,7 +144,17 @@ public class AccessCommand implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (!command.getName().equals("eterresource")) {
-            return List.of();
+            if (args.length == 1) {
+                return PLAYER_ACTIONS.stream().filter(action -> action.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
+            }
+            return args.length == 2 ? lib.getOnlineNames().complete(args[1]) : List.of();
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("testmode")) {
+            return List.of("on", "off");
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("event")) {
+            return java.util.Arrays.stream(fr.eternom.eterResource.module.content.WorldEvents.Kind.values())
+                    .map(kind -> kind.name().toLowerCase(Locale.ROOT).replace('_', '-')).toList();
         }
         if (args.length == 1) {
             return ACTIONS.stream().filter(action -> action.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
@@ -124,6 +163,62 @@ public class AccessCommand implements TabExecutor {
             return lib.getOnlineNames().complete(args[1]);
         }
         return List.of();
+    }
+
+    /** Sur un monde ressource : la fiche de ce monde (mode test). */
+    public void setWorld(fr.eternom.eterResource.module.world.WorldSetup world) {
+        this.world = world;
+    }
+
+    public void setContent(fr.eternom.eterResource.module.content.ResourceContent content) {
+        this.content = content;
+    }
+
+    /** /eterresource event <gold-rush|golden-forest|meteor|treasure|challenge|end-window> : lancer un événement ici. */
+    private void startEvent(CommandSender sender, String name) {
+        if (content == null || content.events() == null) {
+            messages.send(sender, "admin.not-a-world");
+            return;
+        }
+        try {
+            var kind = fr.eternom.eterResource.module.content.WorldEvents.Kind.valueOf(name.toUpperCase(Locale.ROOT).replace('-', '_'));
+            messages.send(sender, content.events().begin(kind) ? "admin.event-started" : "admin.event-busy");
+        } catch (IllegalArgumentException e) {
+            messages.send(sender, "admin.event-usage");
+        }
+    }
+
+    private void gift(Player player, String name, int minutes) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            Optional<NetworkPlayer> target = lib.getPlayers().findFor(player, name);
+            Bukkit.getScheduler().runTask(plugin, () -> target.ifPresentOrElse(found -> service.gift(player, found.uuid(), found.name(), minutes),
+                    () -> messages.send(player, "player.unknown", "player", name)));
+        });
+    }
+
+    private void testMode(CommandSender sender, boolean on) {
+        if (world == null) {
+            messages.send(sender, "admin.not-a-world");
+            return;
+        }
+        world.setTest(on);
+        messages.send(sender, on ? "admin.testmode-on" : "admin.testmode-off");
+    }
+
+    private void worldLog(CommandSender sender) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            List<fr.eternom.eterResource.module.world.WorldDirectory.LogEntry> entries = service.directory().history(10);
+            java.text.SimpleDateFormat date = new java.text.SimpleDateFormat("dd/MM HH:mm");
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                messages.send(sender, "admin.worlds-header", "count", String.valueOf(entries.size()));
+                for (var entry : entries) {
+                    messages.send(sender, "admin.worlds-line", "server", entry.name(), "theme", entry.theme() == null ? "-" : entry.theme(),
+                            "opened", date.format(new java.util.Date(entry.openedAt())),
+                            "closed", entry.closedAt() > 0 ? date.format(new java.util.Date(entry.closedAt())) : "…",
+                            "peak", String.valueOf(entry.peak()), "joins", String.valueOf(entry.joins()));
+                }
+            });
+        });
     }
 
     /** Clés pour tous les joueurs connectés, puis merci à l'acheteur (son pseudo tel qu'enregistré, s'il est connu). */

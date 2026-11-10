@@ -30,7 +30,7 @@ import java.util.Locale;
 public final class Main extends JavaPlugin {
 
     /** Version minimale d'EterLib : joueurs par serveur et connect depuis 1.7.0. */
-    private static final String REQUIRED_ETERLIB = "1.15.0";
+    private static final String REQUIRED_ETERLIB = "1.25.0";
 
     /** Préfixe des tables d'EterResource : eterresource_access, eterresource_worlds (et eterresource_servers, de l'orchestrateur). */
     private static final String TABLE_PREFIX = "eterresource_";
@@ -43,6 +43,9 @@ public final class Main extends JavaPlugin {
     private WorldSetup world;
     private Sessions sessions;
     private JobBonuses bonuses;
+    private fr.eternom.eterResource.module.world.Camp camp;
+    private fr.eternom.eterResource.module.world.Closing closing;
+    private fr.eternom.eterResource.module.content.ResourceContent content;
 
     @Override
     public void onEnable() {
@@ -67,19 +70,29 @@ public final class Main extends JavaPlugin {
         service = new AccessService(this, lib, messages, access, worlds, worldServer,
                 new JobPerks());
         community = new CommunityKeys(this, lib, access, service, messages);
+        service.setBus(community.bus());
+        content = new fr.eternom.eterResource.module.content.ResourceContent(this, messages,
+                new fr.eternom.eterResource.module.content.ContentStore(database), community.bus());
+        BackButton back = lib.backButton(getConfig().getString("menus.access.back-command", ""));
 
         if (worldServer) {
-            world = new WorldSetup(this, worlds, lib.getServerName());
+            camp = new fr.eternom.eterResource.module.world.Camp(this, messages);
+            world = new WorldSetup(this, worlds, lib.getServerName(), camp,
+                    fr.eternom.eterResource.module.theme.Themes.load(getConfig(), getLogger()));
+            closing = new fr.eternom.eterResource.module.world.Closing(this, lib, messages, world, service);
             sessions = new Sessions(this, lib, messages, access, world);
             bonuses = new JobBonuses(this, messages);
             service.onTimeChanged(sessions::reload);
+            fr.eternom.eterResource.module.content.ResourceContent.addPopulator(world);
             world.start();
             sessions.start();
             bonuses.start();
+            closing.start();
+            content.startWorld(world, sessions, closing, bonuses);
             getLogger().info("Monde ressource : " + lib.getServerName());
         }
-        // API pour les autres plugins (ResourceApi.get())
-        BackButton back = lib.backButton(getConfig().getString("menus.access.back-command", ""));
+        // API pour les autres plugins (ResourceApi.get()) et actions d'EterLib
+        fr.eternom.eterResource.module.access.ResourceActions.register(this, service, access, messages, back);
         getServer().getServicesManager().register(ResourceApi.class, new ResourceApiService(this, service, access,
                 player -> AccessMenu.open(this, service, messages, back, player)), this, ServicePriority.Normal);
 
@@ -93,6 +106,12 @@ public final class Main extends JavaPlugin {
         // Les joueurs encore là quittent après l'arrêt des plugins : leur temps part en base maintenant
         if (sessions != null) {
             sessions.stop();
+        }
+        if (camp != null) {
+            camp.stop();
+        }
+        if (content != null) {
+            content.stop();
         }
     }
 
@@ -119,6 +138,20 @@ public final class Main extends JavaPlugin {
     /** null hors d'un monde ressource. */
     public Sessions getSessions() {
         return sessions;
+    }
+
+    public fr.eternom.eterResource.module.content.ResourceContent getContent() {
+        return content;
+    }
+
+    /** null hors d'un monde ressource. */
+    public WorldSetup getWorld() {
+        return world;
+    }
+
+    /** null hors d'un monde ressource. */
+    public fr.eternom.eterResource.module.world.Camp getCamp() {
+        return camp;
     }
 
     /** null hors d'un monde ressource. */

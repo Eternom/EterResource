@@ -26,6 +26,10 @@ public class CommunityKeys {
     private final Messages messages;
     private final NetworkBus bus;
 
+    public NetworkBus bus() {
+        return bus;
+    }
+
     public CommunityKeys(JavaPlugin plugin, EterLib lib, AccessRepository access, AccessService service, Messages messages) {
         this.lib = lib;
         this.access = access;

@@ -11,6 +11,7 @@ menu:
     name: "<accent><player>"
     time: "<info>Time left: <accent><time></accent> <dark_gray>(max <max>)"
     keys: "<info>Keys: <accent><keys>"
+    daily: "<info>Free minutes per day: <accent><minutes>"
     job-rank: "<info>Job: <accent><job></accent> <dark_gray>(<rank>)"
     no-job: "<info>No job: pick one at the guild to get perks here."
     no-perk: "<info>Your rank has no perk here yet: rank up!"
@@ -35,6 +36,10 @@ menu:
     name: "<accent>Buy <time>"
     price: "<info>Price: <accent><price>"
     disabled: "<error>Buying disabled"
+    price-off-peak: "<info>Price: <accent><price></accent> <dark_gray><st><old></st>"
+    per-minute: "<dark_gray><price> per minute"
+    off-peak: "<success>Off-peak: -<percent> %"
+    click: "<success>● <accent>click</accent> <info>to buy"
   key:
     name: "<accent>Use a key <dark_gray>(+<time>)"
     count: "<info>Your keys: <accent><keys>"
@@ -44,6 +49,27 @@ menu:
     click: "<success>● <accent>click</accent> <info>to go"
     no-time: "<error>● <info>You need time"
     here: "<success>● <info>You are here"
+  worlds:
+    name: "<accent><server>"
+    theme: "<info>Theme: <accent><theme>"
+    players: "<info>Players: <accent><count>"
+    closes: "<info>Closes in: <accent><time>"
+    laggy: "<error>● A bit laggy right now"
+    click: "<success>● <accent>click</accent> <info>to go"
+    none: "<error>No open world"
+    none-lore: "<gray>A new world is being prepared, come back in a few minutes."
+  history:
+    name: "<accent>History"
+    lore: "<gray>Where your time went (90 days)"
+    title: "<primary>Time history"
+    gain: "<success>+<time>"
+    loss: "<error>-<time>"
+    date: "<dark_gray><date>"
+    empty: "<gray>Nothing yet"
+    back: "<accent>« Back"
+  gift:
+    name: "<accent>Give time"
+    lore: "<gray>/resource gift \\<player> \\<minutes>"
 
 buy:
   title: "<primary>Buy time"
@@ -61,6 +87,11 @@ access:
   no-world: "<error>No resource world is open right now, try again in a few minutes."
   connecting: "<info>Connecting to <accent><server></accent>..."
   already-there: "<info>You are already on a resource world."
+  usage: "<error>/resource <dark_gray>·</dark_gray> /resource gift \\<player> \\<minutes> <dark_gray>·</dark_gray> /resource join \\<player>"
+  daily: "<success>Your <accent><time></accent> of resource world for today are here <dark_gray>(/resource)"
+  crash-refund: "<info>Your last resource world stopped abruptly: <accent><time></accent> given back."
+  reward: "<success>+<time></success> <info>of resource world."
+  friend-not-there: "<error><accent><player></accent> is not on an open resource world."
 
 world:
   welcome: "<info>Resource world: you have <accent><time></accent> left. No PvP, and you keep your inventory on death."
@@ -69,6 +100,9 @@ world:
   time-over: "<info>Your resource world time is over."
   no-time: "<error>You need resource world time (<accent>/resource</accent> in the lobby)."
   not-ready: "<error>This resource world is still being prepared, try again in a few minutes."
+  paused-camp: "<success>At the camp: your time is paused"
+  paused-afk: "<info>Inactive: your time is paused"
+  resumed: "<info>Your time is running again"
 
 admin:
   usage: '<error>Usage: <accent>/eterresource givekey|givetime \<player> \<amount></accent>, <accent>/eterresource communitykey \<buyer> \<amount></accent> or <accent>/eterresource info \<player>'
@@ -79,6 +113,160 @@ admin:
   info: "<accent><player></accent><info>: keys <accent><keys></accent>, time <accent><time>"
   received-key: "<info>You received <accent><amount></accent> resource world key(s) (<accent>/resource</accent>)."
   received-time: "<info>You received <accent><amount> min</accent> of resource world (<accent>/resource</accent>)."
+  testmode-on: "<info>Test mode: this world is no longer offered to players."
+  testmode-off: "<info>Test mode off: this world is offered again."
+  not-a-world: "<error>This server is not a resource world."
+  worlds-header: "<info>Latest resource worlds (<accent><count></accent>):"
+  worlds-line: "<dark_gray> · <accent><server></accent> <gray><theme> · <opened> → <closed> · peak <peak> · <joins> joins"
+  event-started: "<success>Event started."
+  event-busy: "<error>An event is already running."
+  event-usage: "<error>/eterresource event gold-rush|golden-forest|meteor|treasure|challenge|end-window"
 
 bonus:
   active: "<info>Your <accent><rank> <job></accent> perks are active in this world (<accent>/job perks</accent>)."
+
+theme:
+  classique: {name: "<green>Classic world", subtitle: "<gray>A bit of everything", icon: GRASS_BLOCK}
+  foret: {name: "<green>Forest", subtitle: "<gray>Wood, apples and game", icon: OAK_SAPLING}
+  montagnes: {name: "<white>Mountains", subtitle: "<gray>Richer veins", icon: IRON_PICKAXE}
+  desert: {name: "<gold>Desert", subtitle: "<gray>Sand, badlands and gold", icon: SAND}
+  ocean: {name: "<aqua>Ocean", subtitle: "<gray>Islands, reefs and fish", icon: HEART_OF_THE_SEA}
+  toundra: {name: "<aqua>Tundra", subtitle: "<gray>Ice, snow and wild beasts", icon: ICE}
+  jungle: {name: "<dark_green>Jungle", subtitle: "<gray>Cocoa, bamboo and mysteries", icon: JUNGLE_SAPLING}
+  filon: {name: "<gold><bold>Vein world", subtitle: "<gray>Ores galore, but it closes fast!", icon: DIAMOND_ORE}
+
+camp:
+  protected: "<error>Nothing can be broken or placed at the base camp."
+  station:
+    sac: "<gold>Return bag"
+    relais: "<aqua>Guild relay"
+    marchand: "<green>Camp merchant"
+    carnet: "<yellow>Expedition notebook"
+
+sidebar:
+  title: "<gradient:#7EC850:#3E8E41><bold>Resource world"
+  theme: "<info>Theme: <accent><theme>"
+  time: "<info>Your time: <accent><time>"
+  time-paused: "<info>Your time: <accent><time></accent> <success>(paused)"
+  time-staff: "<info>Your time: <accent>∞"
+  closing: "<info>Closes in: <accent><time>"
+  multiplier: "<error>Time ×<multiplier> here"
+  harvest: "<gray>Blocks <accent><blocks></accent> · ores <accent><ores>"
+
+closing:
+  announce: "<gold>⚠ This resource world closes in <accent><time></accent>: what is left on the ground and in chests will be lost!"
+  storm: "<error>⚡ The final storm is coming: the border shrinks toward the base camp."
+  bar: "<red>World closing in <time>"
+  moved: "<info>This world is closing: heading to <accent><server></accent>, your time keeps running."
+  kick: "<info>This resource world is closed. Thanks for coming!"
+
+history:
+  buy: "<info>Purchase"
+  key: "<info>Key"
+  daily: "<info>Daily minutes"
+  reward: "<info>Reward"
+  staff: "<info>Staff (<detail>)"
+  spent: "<info>Time spent on <detail>"
+  crash: "<info>Refund (<detail> stopped)"
+  gift-to: "<info>Given to <detail>"
+  gift-from: "<info>Given by <detail>"
+
+gift:
+  help: "<info>To give time: <accent>/resource gift \\<player> \\<minutes>"
+  too-small: "<error>Give at least <accent><minutes> min</accent>."
+  self: "<error>You cannot give time to yourself."
+  not-enough: "<error>You do not have enough time to give."
+  full: "<error><accent><player></accent> cannot keep more."
+  sent: "<success>You gave <accent><time></accent> of resource world to <accent><player></accent>."
+  received: "<success><accent><player></accent> gave you <accent><time></accent> of resource world!"
+
+recap:
+  title: "<info>Your trip to <accent><theme></accent>: <accent><time></accent>"
+  line: "<gray>Blocks <accent><blocks></accent> · ores <accent><ores></accent> · logs <accent><logs></accent> · monsters <accent><mobs>"
+
+bag:
+  title: "<gold>Return bag"
+  opened: "<info>What you put here waits for you everywhere (<accent>/resource bag</accent>)"
+
+shop:
+  title: "<green>Camp merchant"
+  price: "<info>Price: <accent><price>"
+  click: "<success>● <accent>click</accent> <info>1 lot <dark_gray>· <accent>Shift + click</accent> <info>4 lots"
+  bought: "<success>Bought: <accent><amount> <item></accent> for <accent><price></accent>."
+  not-enough: "<error>You need <accent><price></accent>."
+  empty: "<error>The merchant has nothing to sell."
+
+merchant:
+  arrived: "<green>🛒 A wandering merchant stopped at the base camp, for a few minutes!"
+
+places:
+  discovered: "<success>Discovery: <accent><place></accent>! <dark_gray>(expedition notebook)"
+  type:
+    miners-camp: "Miners' camp"
+    watchtower: "Watchtower"
+    ruins: "Ruins"
+    dungeon: "Forgotten dungeon"
+    lava-well: "Lava well"
+    deposit: "Rich vein"
+    grove: "Rare grove"
+  direction:
+    n: "north"
+    ne: "north-east"
+    e: "east"
+    se: "south-east"
+    s: "south"
+    sw: "south-west"
+    w: "west"
+    nw: "north-west"
+  book:
+    title: "Expedition notebook"
+    intro: "<dark_green><bold>Expedition notebook</bold></dark_green><newline><newline><black><count> places in this world.<newline><newline><dark_gray>Get close to a place to discover it: its coordinates are added here."
+    found: "<dark_green>✔ <place> <n></dark_green> <black><x> <y> <z>"
+    hint: "<dark_gray>? <place> <n>: <black><direction>, ~<distance> blocks"
+
+events:
+  gold-rush:
+    start: "<gold>⛏ Gold rush! For 10 minutes, ores drop double."
+    end: "<info>The gold rush is over."
+    sidebar: "<gold>⛏ Gold rush <accent><time>"
+  golden-forest:
+    start: "<green>🍎 Golden forest! Logs drop apples, sometimes golden ones."
+    end: "<info>The golden forest falls asleep."
+    sidebar: "<green>🍎 Golden forest <accent><time>"
+  meteor:
+    start: "<red>☄ A meteorite fell to the <accent><direction></accent> (<accent><x></accent>, <accent><z></accent>): its crater is full of rare ores!"
+    end: "<info>The meteorite crater has cooled down."
+    sidebar: "<red>☄ Meteorite <accent><time>"
+  treasure:
+    start: "<yellow>💰 A treasure is buried to the <accent><direction></accent>, somewhere around (<accent><x></accent>, <accent><z></accent>)! Get close: hot or cold?"
+    end: "<info>Nobody found the treasure... it stays hidden."
+    found: "<yellow>💰 <accent><player></accent> found the treasure!"
+    sidebar: "<yellow>💰 Treasure <accent><time>"
+    heat:
+      burning: "<red><bold>🔥 BURNING! Dig here!"
+      hot: "<gold>Hot!"
+      warm: "<yellow>Warm..."
+      cold: "<aqua>Cold."
+  challenge:
+    start: "<aqua>⏱ Challenge: break <accent><goal></accent> blocks in 10 minutes to win resource world time!"
+    end: "<info>The challenge is over."
+    done: "<success>⏱ Challenge complete!"
+    sidebar: "<aqua>⏱ Challenge <accent><progress></accent>/<goal> <dark_gray><time>"
+  end-window:
+    start: "<light_purple>✦ The way to the End is open for 10 minutes (limited places)!"
+    end: "<info>The way to the End closes."
+    sidebar: "<light_purple>✦ End open <accent><time>"
+    closed: "<error>The way to the End is closed: it opens during its events."
+    full: "<error>The End is full for this opening."
+
+daily-resource:
+  hint: "<info>Resource of the day: <accent><item></accent> <dark_gray>(it gives more today)"
+
+announce:
+  ready: "<green>🌍 New resource world: <accent><theme></accent> on <accent><server></accent> <dark_gray>(/resource)"
+
+guard:
+  container: "<error>This chest belongs to another player."
+  spawner: "<error>No eggs in spawners here."
+  machines: "<error>At most <accent><max></accent> hoppers and droppers per chunk here."
+  rate-alert: "<error>[Resource world] <accent><player></accent> broke <accent><count></accent> blocks in one minute."
