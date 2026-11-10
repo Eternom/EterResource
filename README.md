@@ -6,7 +6,7 @@ Les serveurs eux-mêmes (création, monde neuf, remplacement au bout de 12 h) so
 
 Un seul jar, deux rôles selon le serveur :
 
-- **Accès** (lobbys, survies… partout) : `/ressource` pour acheter du temps, utiliser une clé et partir.
+- **Accès** (lobbys, survies… partout) : `/resource` pour acheter du temps, utiliser une clé et partir.
 - **Monde ressource** (server-name qui commence par `world-server-prefix`, `ressource` par défaut, comme le
   `name-prefix` d'EterVelocityResource) : préparation du monde, temps qui s'écoule, bonus de métier.
 
@@ -25,7 +25,7 @@ Un seul jar, deux rôles selon le serveur :
 - **`access`** : table `eterresource_access` (uuid, `remaining_ms`, `key_count`), commune au réseau. Chaque changement
   est UNE requête qui vérifie elle-même ses conditions (clé disponible, plafond `max-minutes`) : un double clic ou deux
   serveurs en même temps ne donnent jamais de temps en trop. Achat (`slot-price` pour `slot-minutes`) : le temps est
-  ajouté d'abord, puis retiré si le paiement échoue. Menu `/ressource` (tête du joueur avec temps, clés, et son métier avec ses bonus sur le monde ressource
+  ajouté d'abord, puis retiré si le paiement échoue. Menu `/resource` (tête du joueur avec temps, clés, et son métier avec ses bonus sur le monde ressource
   (`JobPerks` : métier, rang et avantages lus dans EterJob, sur tous les serveurs), acheter
   avec confirmation en Dialog, utiliser une clé, partir sur le monde ouvert le moins rempli).
   `/eterresource givekey|givetime|info <joueur>` (staff et console, joueur hors ligne possible) : pour EterReward
@@ -60,7 +60,7 @@ Un seul jar, deux rôles selon le serveur :
 
 | Permission | Par défaut | Rôle |
 |---|---|---|
-| `eterresource.use` | tous | `/ressource` |
+| `eterresource.use` | tous | `/resource` |
 | `eterresource.bypass.time` | op | Monde ressource sans temps |
 | `eterresource.admin` | op | Tout, dont `/eterresource` |
 

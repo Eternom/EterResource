@@ -23,7 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.Locale;
 
 /**
- * Les mondes ressources, côté Paper. Partout (lobby, survie) : /ressource pour acheter du temps, utiliser une clé et
+ * Les mondes ressources, côté Paper. Partout (lobby, survie) : /resource pour acheter du temps, utiliser une clé et
  * partir sur le monde le moins rempli. Sur un monde ressource (server-name qui commence par world-server-prefix,
  * serveurs créés par EterVelocityResource) : préparation du monde, temps qui s'écoule, bonus de métier.
  */

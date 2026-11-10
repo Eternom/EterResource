@@ -36,6 +36,6 @@ public interface ResourceApi {
     /** Donne des clés (une clé = un créneau). Bloquant (base). */
     void giveKeys(UUID player, int keys);
 
-    /** Le menu /ressource. Thread principal. */
+    /** Le menu /resource. Thread principal. */
     void openMenu(Player player);
 }

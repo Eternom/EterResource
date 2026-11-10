@@ -10,10 +10,10 @@ depend: [EterLib, EterEconomy]
 softdepend: [EterJob]
 
 commands:
-  ressource:
+  resource:
     description: Menu des mondes ressources (temps, clés, départ).
-    usage: /ressource
-    aliases: [resource, rw]
+    usage: /resource
+    aliases: [rw]
     permission: eterresource.use
   eterresource:
     description: Administration des mondes ressources (staff, console).

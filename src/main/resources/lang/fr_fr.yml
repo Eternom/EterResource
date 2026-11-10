@@ -67,18 +67,18 @@ world:
   reminder: "<info>Plus que <accent><time></accent> sur le monde ressource."
   countdown: "<info>Monde ressource : <accent><time>"
   time-over: "<info>Ton temps de monde ressource est écoulé."
-  no-time: "<error>Il te faut du temps de monde ressource (<accent>/ressource</accent> au lobby)."
+  no-time: "<error>Il te faut du temps de monde ressource (<accent>/resource</accent> au lobby)."
   not-ready: "<error>Ce monde ressource se prépare encore, réessaie dans quelques minutes."
 
 admin:
   usage: '<error>Utilisation : <accent>/eterresource givekey|givetime \<joueur> \<nombre></accent>, <accent>/eterresource communitykey \<acheteur> \<nombre></accent> ou <accent>/eterresource info \<joueur>'
   communitykey: "<accent><amount></accent> <info>clé(s) donnée(s) à <accent><count></accent> <info>joueur(s) connecté(s), de la part de <accent><player>"
-  community: "<info>Merci <accent><player></accent> ! Chaque joueur connecté reçoit <accent><amount></accent> clé(s) de monde ressource (<accent>/ressource</accent>)."
+  community: "<info>Merci <accent><player></accent> ! Chaque joueur connecté reçoit <accent><amount></accent> clé(s) de monde ressource (<accent>/resource</accent>)."
   givekey: "<accent><amount></accent> <info>clé(s) donnée(s) à <accent><player></accent> <dark_gray>(clés : <keys>, temps : <time>)"
   givetime: "<accent><amount> min</accent> <info>données à <accent><player></accent> <dark_gray>(clés : <keys>, temps : <time>)"
   info: "<accent><player></accent> <info>: clés <accent><keys></accent>, temps <accent><time>"
-  received-key: "<info>Tu as reçu <accent><amount></accent> clé(s) de monde ressource (<accent>/ressource</accent>)."
-  received-time: "<info>Tu as reçu <accent><amount> min</accent> de monde ressource (<accent>/ressource</accent>)."
+  received-key: "<info>Tu as reçu <accent><amount></accent> clé(s) de monde ressource (<accent>/resource</accent>)."
+  received-time: "<info>Tu as reçu <accent><amount> min</accent> de monde ressource (<accent>/resource</accent>)."
 
 bonus:
-  active: "<info>Tes avantages de <accent><rank> <job></accent> sont actifs dans ce monde (<accent>/job avantages</accent>)."
+  active: "<info>Tes avantages de <accent><rank> <job></accent> sont actifs dans ce monde (<accent>/job perks</accent>)."

@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Menu /ressource, 3 lignes : le joueur (temps restant, clés, et les bonus de son métier sur le monde ressource),
+ * Menu /resource, 3 lignes : le joueur (temps restant, clés, et les bonus de son métier sur le monde ressource),
  * acheter un créneau, utiliser une clé, partir. Ouvert avec le temps, les clés et le métier lus juste avant ; rouvert à
  * jour après un achat ou une clé.
  */

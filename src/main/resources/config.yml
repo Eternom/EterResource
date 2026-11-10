@@ -2,7 +2,7 @@
 #  EterResource : les mondes ressources
 # ============================================================
 #
-#  À installer sur les lobbys et les survies (menu /ressource : acheter du temps, utiliser une clé,
+#  À installer sur les lobbys et les survies (menu /resource : acheter du temps, utiliser une clé,
 #  partir) ET dans les plugins des mondes ressources (téléchargé par EterVelocityResource).
 #  Un serveur est un monde ressource si son server-name (EterLib) commence par world-server-prefix :
 #  il prépare alors son monde, compte le temps des joueurs et donne les bonus de métier.
@@ -36,8 +36,8 @@ world:
 # Avantages de métier sur les mondes ressources : ils se règlent dans la config d'EterJob (perks), par métier ET par rang.
 # EterResource les applique ici seulement (sans EterJob : aucun).
 
-# Menu /ressource : bouton en bas. Avec une commande (sans le /), il la lance pour le joueur et relie
+# Menu /resource : bouton en bas. Avec une commande (sans le /), il la lance pour le joueur et relie
 # les menus entre eux ; vide, il ferme le menu.
 menus:
   access:
-    back-command: "menu voyager"
+    back-command: "menu travel"

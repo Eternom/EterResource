@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Le métier et les avantages d'un joueur, connus sur TOUS les serveurs : le menu /ressource les montre aussi depuis la
+ * Le métier et les avantages d'un joueur, connus sur TOUS les serveurs : le menu /resource les montre aussi depuis la
  * survie, alors qu'ils ne s'appliquent que sur le monde ressource (JobBonuses). Ils viennent d'EterJob (rang compris).
  */
 public class JobPerks {

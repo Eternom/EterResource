@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 /**
- * /ressource : le menu d'accès. /eterresource (staff, console comprise, ex : récompenses d'EterReward) :
+ * /resource : le menu d'accès. /eterresource (staff, console comprise, ex : récompenses d'EterReward) :
  * givekey <joueur> <n>, givetime <joueur> <minutes> (sans plafond), info <joueur>. Le joueur peut être hors ligne
  * (annuaire des joueurs d'EterLib). communitykey <acheteur> <n> : n clés pour chaque joueur connecté sur le réseau.
  */
@@ -48,7 +48,7 @@ public class AccessCommand implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (command.getName().equals("ressource")) {
+        if (command.getName().equals("resource")) {
             if (sender instanceof Player player) {
                 AccessMenu.open(plugin, service, messages, back, player);
             } else {
