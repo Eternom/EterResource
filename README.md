@@ -41,9 +41,9 @@ Un seul jar, deux rôles selon le serveur :
   `locateNearestBiome`), bordure, durée de vie (`lifetime-hours` → `close_at`), minerais en plus, bonus de métier,
   événements plus fréquents. Forêt, montagnes, désert, océan, toundra, jungle, et le monde « filon » (riche, court).
 - `WorldSetup` : inventaire gardé, pas de PvP, **pas de sauvegarde automatique** (monde jetable), bordures,
-  prégénération ; prêt seulement après, plugins requis présents. Signe de vie (`eterresource_`/eterresource givekey|givetime|communitykey|info|testmode|worlds|event [info|tp|stop|<type>]|places [tp <n°>]``, 10 s) : thème,
-  joueurs, TPS, ouverture, fermeture, mode test (`/eterresource `/eterresource givekey|givetime|communitykey|info|testmode|worlds|event [info|tp|stop|<type>]|places [tp <n°>]` on`). Journal des mondes
-  (`eterresource_world_log`, `/eterresource `/eterresource givekey|givetime|communitykey|info|testmode|worlds|event [info|tp|stop|<type>]|places [tp <n°>]``). Un nouveau monde prêt est annoncé sur tout le réseau.
+  prégénération ; prêt seulement après, plugins requis présents. Signe de vie (`eterresource_worlds`, 10 s) : thème,
+  joueurs, TPS, ouverture, fermeture, mode test (`/eterresource testmode on`). Journal des mondes
+  (`eterresource_world_log`, `/eterresource worlds`). Un nouveau monde prêt est annoncé sur tout le réseau.
 - **Camp de base** (`Camp`) : plateforme sûre au centre (même sur l'eau), spawn, postes (`camp.stations` : bloc +
   action EterLib : sac de retour, relais de la guilde, marchand, carnet d'expédition), protégé ; **temps en pause** au
   camp.
@@ -65,7 +65,8 @@ Un seul jar, deux rôles selon le serveur :
 - **Minerais en plus** (`OrePopulator`, `ore-multiplier` du thème).
 - **Événements** (`WorldEvents`, `events`) : ruée vers l'or, forêt dorée, météorite, trésor caché (chaud / froid), défi
   chronométré, **ouverture de l'End** (le portail ne mène à l'End que pendant elle, places limitées) ;
-  `/eterresource event <type>`. Pas de boss (plus tard, avec EterMob).
+  `/eterresource event <type>` ; `event info` (lieu exact), `event tp`, `event stop` ; `/eterresource places [tp <n°>]`
+  (coordonnées exactes des lieux). Pas de boss (plus tard, avec EterMob).
 - **Nuit** plus dangereuse (`night`), **ressource du jour**, **bonus de groupe** (`bonus.group-chance`), **bonus de
   métier du thème**.
 - **Règles** (`Guard`, `guard`) : coffres au propriétaire, créatures et hoppers limités par chunk, pas d'œuf sur un
@@ -89,7 +90,7 @@ qu'EterSync ne les enregistre. Les blocs posés par un joueur (EterLib `PlacedBl
 | `eterresource.daily.<minutes>` | - | Minutes gratuites par jour (abonnement) |
 | `eterresource.bag.<lignes>` | - | Sac de retour plus grand (3 lignes au plus) |
 | `eterresource.bypass.time` | op | Monde ressource sans temps |
-| `eterresource.admin` | op | Tout : `/eterresource givekey|givetime|communitykey|info|testmode|worlds|event [info|tp|stop|<type>]|places [tp <n°>]`\|givetime\|communitykey\|info\|testmode\|worlds\|event` |
+| `eterresource.admin` | op | Tout : `/eterresource givekey\|givetime\|communitykey\|info\|testmode\|worlds\|event [info\|tp\|stop\|<type>]\|places [tp <n°>]` |
 
 ## Technique
 
