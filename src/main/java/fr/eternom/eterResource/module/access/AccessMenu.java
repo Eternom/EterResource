@@ -51,7 +51,7 @@ public class AccessMenu implements Menu {
     private static final int[] OFFERS = {20, 22, 24};
     private static final int KEY = 26;
     private static final int[] WORLDS = {37, 38, 39, 40, 41, 42, 43};
-    private static final int BACK = 45;
+    private static final int BACK = 48; // le centre porte l'action principale ; 45 = page précédente ailleurs
     private static final int HISTORY = 47;
     private static final int GO = 49;
     private static final int GIFT = 51;
@@ -276,7 +276,7 @@ public class AccessMenu implements Menu {
             if (entries.isEmpty()) {
                 history.setItem(13, Items.item(Material.PAPER, messages.get(viewer, "menu.history.empty"), List.of()));
             }
-            history.setItem(31, Items.item(Material.ARROW, messages.get(viewer, "menu.history.back"), List.of()));
+            history.setItem(31, Items.item(Material.OAK_DOOR, messages.get(viewer, "menu.history.back"), List.of()));
         }
 
         @Override
