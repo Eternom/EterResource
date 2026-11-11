@@ -1,5 +1,7 @@
 package fr.eternom.eterResource.module.content;
 
+import fr.eternom.eterLib.helper.gui.BackButton;
+import fr.eternom.eterLib.EterLib;
 import fr.eternom.eterEconomy.api.EconomyApi;
 import fr.eternom.eterLib.helper.economy.Money;
 import fr.eternom.eterLib.helper.gui.Frame;
@@ -106,6 +108,8 @@ public class CampShop {
 
         private final Inventory inventory;
         private final Map<Integer, Lot> lotAt = new HashMap<>();
+        private final BackButton back = EterLib.get().backButton("close");
+        private int backSlot;
 
         Stall(Player viewer) {
             int rows = Math.min(6, 2 + (lots.size() + 6) / 7);
@@ -126,10 +130,16 @@ public class CampShop {
                                 messages.get(viewer, "shop.click"))));
                 slot++;
             }
+            backSlot = rows * 9 - 5;
+            inventory.setItem(backSlot, back.item(viewer));
         }
 
         @Override
         public void onClick(Player player, int slot, ClickType click) {
+            if (slot == backSlot) {
+                back.click(player);
+                return;
+            }
             Lot lot = lotAt.get(slot);
             if (lot != null) {
                 Sounds.click(player);
