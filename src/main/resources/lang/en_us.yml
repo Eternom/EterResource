@@ -39,14 +39,14 @@ menu:
     price-off-peak: "<info>Price: <accent><price></accent> <dark_gray><st><old></st>"
     per-minute: "<dark_gray><price> per minute"
     off-peak: "<success>Off-peak: -<percent> %"
-    click: "<success>● <accent>click</accent> <info>to buy"
+    click: "<accent>Click <dark_gray>· <info>buy"
   key:
     name: "<accent>Use a key <dark_gray>(+<time>)"
     count: "<info>Your keys: <accent><keys>"
   go:
     name: "<accent>Go"
     worlds: "<info>Open worlds: <accent><count>"
-    click: "<success>● <accent>click</accent> <info>to go"
+    click: "<accent>Click <dark_gray>· <info>go there"
     no-time: "<error>● <info>You need time"
     here: "<success>● <info>You are here"
   worlds:
@@ -55,7 +55,7 @@ menu:
     players: "<info>Players: <accent><count>"
     closes: "<info>Closes in: <accent><time>"
     laggy: "<error>● A bit laggy right now"
-    click: "<success>● <accent>click</accent> <info>to go"
+    click: "<accent>Click <dark_gray>· <info>go there"
     none: "<error>No open world"
     none-lore: "<gray>A new world is being prepared, come back in a few minutes."
   history:
@@ -197,7 +197,7 @@ bag:
 shop:
   title: "<green>Camp merchant"
   price: "<info>Price: <accent><price>"
-  click: "<success>● <accent>click</accent> <info>1 lot <dark_gray>· <accent>Shift + click</accent> <info>4 lots"
+  click: "<accent>Click <dark_gray>· <info>1 lot <dark_gray>· <accent>Shift + click <dark_gray>· <info>4 lots"
   bought: "<success>Bought: <accent><amount> <item></accent> for <accent><price></accent>."
   not-enough: "<error>You need <accent><price></accent>."
   empty: "<error>The merchant has nothing to sell."
