@@ -42,7 +42,7 @@ import java.util.function.Function;
  *  ▣ · A · B · C · K     A B C = offres de temps (heure creuse : remise) · K = utiliser une clé
  *  ▣ · · · · · · · ▣
  *  ▣ m m m m m m m ▣     les mondes ouverts : thème, joueurs, fermeture ; clic pour y aller
- *  « ▣ ☰ ▣ ⇒ ▣ ✉ ▣ ▣     retour · historique · partir (le moins rempli) · offrir du temps
+ *  « ▣ ☰ ▣ ⇒ ▣ ✉ ▣ ⌂     retour · historique · partir (le moins rempli) · offrir du temps · ⌂ = sac de retour (hors monde ressource)
  * </pre>
  */
 public class AccessMenu implements Menu {
@@ -55,6 +55,7 @@ public class AccessMenu implements Menu {
     private static final int HISTORY = 47;
     private static final int GO = 49;
     private static final int GIFT = 51;
+    private static final int BAG = 53;
     private static final String[] ROMAN = {"I", "II", "III", "IV", "V"};
 
     private final JavaPlugin plugin;
@@ -121,6 +122,12 @@ public class AccessMenu implements Menu {
                 player.closeInventory();
                 messages.send(player, "gift.help");
             }
+            case BAG -> {
+                if (!service.isWorldServer()) {
+                    Sounds.click(player);
+                    player.performCommand("resource bag");
+                }
+            }
             case BACK -> back.click(player);
             default -> {
             }
@@ -184,6 +191,11 @@ public class AccessMenu implements Menu {
                             messages.get(viewer, access.remainingMillis() > 0 ? "menu.go.click" : "menu.go.no-time"))));
         }
         inventory.setItem(GIFT, Items.item(Material.CAKE, messages.get(viewer, "menu.gift.name"), List.of(messages.get(viewer, "menu.gift.lore"))));
+        if (!service.isWorldServer()) {
+            // Hors monde ressource : vider le sac rempli au camp (au camp, il s'ouvre au poste « sac »)
+            inventory.setItem(BAG, Items.item(Material.BUNDLE, messages.get(viewer, "menu.bag.name"), List.of(
+                    messages.get(viewer, "menu.bag.lore"), messages.get(viewer, "menu.bag.click"))));
+        }
     }
 
     /** Les mondes ouverts : thème, joueurs, fermeture, TPS ; clic pour y aller. */

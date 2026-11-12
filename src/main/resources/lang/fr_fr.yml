@@ -70,6 +70,10 @@ menu:
   gift:
     name: "<accent>Offrir du temps"
     lore: "<gray>/resource gift \\<joueur> \\<minutes>"
+  bag:
+    name: "<gold>Sac de retour"
+    lore: "<gray>Ce que tu y as mis au camp d'un monde ressource t'attend ici, même si le monde a fermé."
+    click: "<accent>Clic <dark_gray>· <info>l'ouvrir"
 
 buy:
   title: "<primary>Acheter du temps"
